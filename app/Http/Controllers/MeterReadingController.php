@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Bills;
 use App\Models\MeterReading;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MeterReadingController extends Controller
 {
@@ -80,7 +81,9 @@ class MeterReadingController extends Controller
 
             return redirect()->route('billing.index')->with('success', 'Meter reading recorded successfully.');
         } catch (\Exception $e) {
-            dd($e->getMessage(), $e->getTraceAsString()); // dev mode, swap this out in prod
+            Log::error('Exception caught: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
@@ -185,7 +188,9 @@ class MeterReadingController extends Controller
 
             return redirect()->route('billing.index')->with('success', 'Meter reading updated successfully.');
         } catch (\Exception $e) {
-            dd($e->getMessage(), $e->getTraceAsString()); // dev mode, swap this out in prod
+            Log::error('Exception caught: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 

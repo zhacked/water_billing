@@ -6,6 +6,12 @@
 
 @section('content_body')
     <div >
+
+        @auth
+    <div>User: {{ auth()->user()->name }} ({{ auth()->user()->role }})</div>
+@else
+    <div>Not logged in</div>
+@endauth
         <x-layouts.add-button route="customer.create" label="Add User" />
         <x-table 
             :headers="['Name', 'Email', 'Contact Number','Meter Number', 'Address', 'Status']" 

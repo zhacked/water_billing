@@ -26,8 +26,8 @@ class Table extends Component
     ) {
         $this->headers = $headers;
         $this->rows = $rows;
-        $this->editRoute = $editRoute;
-        $this->deleteRoute = $deleteRoute;
+        $this->editRoute = $editRoute ?? '';
+        $this->deleteRoute = $deleteRoute ?? '';
     }
 
     /**

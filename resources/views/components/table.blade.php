@@ -234,7 +234,9 @@
                     .then(data => {
     
                         if (data.status = 200) {
-                            Swal.fire('Success', 'Payment has been processed!', 'success');
+                            Swal.fire('Success', 'Payment has been processed!', 'success').then(() => {
+                                location.reload();
+                            });
                         } else {
                             Swal.fire('Oops!', data.message || 'Something went wrong.', 'error');
                         }

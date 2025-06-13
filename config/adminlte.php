@@ -326,17 +326,17 @@ return [
             'icon' => 'far fa-fw fa-file',
             'can' => 'admin section',
         ],
-        // [
-        //     'text' => 'Meter Reading',
-        //     'url' => 'meter',
-        //     'icon' => 'fas fa-archive',
-        //     'can' => 'admin section',
-        // ],
         [
             'text' => 'Billing',
             'url' => 'billing',
             'icon' => '	fas fa-money-bill',
             'can' => 'admin section',
+        ],
+        [
+            'text' => 'Record',
+            'url' => 'customer/record',
+            'icon' => 'fas fa-chart-pie',
+            'can' => 'client section',
         ],
         // ['header' => 'account_settings'],
         // [

@@ -59,6 +59,11 @@ class User extends Authenticatable
         return $query->where('role', 'client');
     }
 
+    public function scopeStaffs($query)
+    {
+        return $query->where('role', 'staff');
+    }
+
     public function meter()
     {
         return $this->hasMany(MeterReading::class, 'user_id', 'id');

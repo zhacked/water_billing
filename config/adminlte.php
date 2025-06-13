@@ -321,6 +321,12 @@ return [
             'can' => 'manage-blog',
         ],
         [
+            'text' => 'Dashboard',
+            'url' => 'home',
+            'icon' => '	fas fa-coins',
+            'can' => 'admin section',
+        ],
+        [
             'text' => 'customer',
             'url' => 'customer',
             'icon' => 'far fa-fw fa-file',
@@ -337,6 +343,12 @@ return [
             'url' => 'customer/record',
             'icon' => 'fas fa-chart-pie',
             'can' => 'client section',
+        ],
+        [
+            'text' => 'Expenses',
+            'url' => 'expenses',
+            'icon' => 'far fa-credit-card',
+            'can' => 'admin section',
         ],
         // ['header' => 'account_settings'],
         // [

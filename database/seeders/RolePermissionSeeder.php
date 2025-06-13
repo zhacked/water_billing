@@ -29,8 +29,8 @@ class RolePermissionSeeder extends Seeder
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->syncPermissions($permissions); // all permissions
 
-        $eclient = Role::firstOrCreate(['name' => 'client']);
-        $eclient->syncPermissions([
+        $client = Role::firstOrCreate(['name' => 'client']);
+        $client->syncPermissions([
             'access dashboard',
             'client section',
         ]);

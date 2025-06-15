@@ -173,11 +173,11 @@ return [
     */
 
     'classes_auth_card' => 'card-outline card-primary',
-    'classes_auth_header' => '',
-    'classes_auth_body' => 'bg-semi-transparent',
-    'classes_auth_footer' => '',
-    'classes_auth_icon' => '',
-    'classes_auth_btn' => 'btn-flat btn-primary',
+    'classes_auth_header' => 'bg-gradient-primary',
+    'classes_auth_body' => '',
+    'classes_auth_footer' => 'text-center',
+    'classes_auth_icon' => 'fa-lg text-info',
+    'classes_auth_btn' => 'btn-flat btn-primary btn-md rounded-pill shadow-sm',
 
     /*
     |--------------------------------------------------------------------------

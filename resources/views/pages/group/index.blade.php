@@ -1,21 +1,20 @@
 @extends('layouts.master')
 
-@section('subtitle', 'Customer')
-@section('content_header_title', 'Customer')
-@section('content_header_subtitle', '')
+@section('subtitle', 'groups')
+@section('content_header_title', 'groups')
+@section('content_header_subtitle', 'dashboard')
 
 @section('content_body')
-
-        <x-layouts.add-button route="customer.create" label="Add User" />
+    <div >
+        <x-layouts.add-button route="groups.create" label="New groups" />
         <x-table 
-            :headers="['Name', 'Email', 'Contact Number','Meter Number', 'Address', 'Status']" 
-            :rows="$customers"
-            :displayFields="['name', 'email', 'contact_number','meter_number','address', 'status']"
+            :headers="['Name', 'Description']" 
+            :rows="$groups"
+            :displayFields="['name', 'description']"
             showIndex="true"
             hideId="true"
-            editRoute="customer.edit"
-            deleteRoute="customer.destroy"
-            editStatus="customer.toggleStatus"
+            editRoute="groups.edit"
+            deleteRoute="groups.destroy"
         />
 
     </div>
@@ -29,8 +28,6 @@
 
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             @if(session('success'))

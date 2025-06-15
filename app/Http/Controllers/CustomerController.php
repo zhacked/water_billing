@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\group;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -17,7 +18,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = User::clients()->latest()->paginate(10);
+        $customers = User::clients()->with('group')->latest()->paginate(10);
         return view("pages.customer.index", compact("customers"));
     }
 
@@ -26,8 +27,8 @@ class CustomerController extends Controller
      */
     public function create()
     {
-
-        return view("pages.customer.form");
+        $groups = group::latest()->get();
+        return view("pages.customer.form", compact("groups"));
     }
 
     /**
@@ -42,7 +43,7 @@ class CustomerController extends Controller
             'address' => 'required|string',
             'contact_number' => 'required|string|max:15',
             'meter_number' => 'required|numeric',
-            'group' => 'required',
+            'group_id' => 'required',
         ]);
 
         $employee = User::create([
@@ -64,7 +65,8 @@ class CustomerController extends Controller
     public function edit(string $id)
     {
         $customer = User::findOrFail($id);
-        return view('pages.customer.form', compact('customer'));
+        $groups = group::latest()->get();
+        return view('pages.customer.form', compact('customer', 'groups'));
     }
 
     /**
@@ -82,6 +84,7 @@ class CustomerController extends Controller
                 'contact_number' => ['required', 'string', 'max:15'],
                 'status' => ['nullable', 'in:active,inactive'], // optional but useful
                 'meter_number' => 'required|numeric',
+                'group_id' => 'required',
             ]);
 
             $customer->update($validated);

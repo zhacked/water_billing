@@ -7,19 +7,19 @@
 @section('content_body')
 
 {{-- Group Filter --}}
-<div class="row mb-3">
+{{--  <div class="row mb-3">
     <div class="col-md-3">
         <div class="form-group">
             <label>Select Group</label>
             <select class="form-control" id="groupSelect">
                 <option value="all">All Groups</option>
-                <option value="group1">Group 1</option>
-                <option value="group2">Group 2</option>
-                <option value="group3">Group 3</option>
+                <option value="A">Group A</option>
+                <option value="B">Group B</option>
+                <option value="C">Group C</option>
             </select>
         </div>
     </div>
-</div>
+</div>  --}}
 
 {{-- Top Financial Summary Cards --}}
 <div class="row" id="dashboard-cards">

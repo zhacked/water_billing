@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Bills;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BillsController extends Controller
 {
@@ -14,7 +15,19 @@ class BillsController extends Controller
     public function index()
     {
         $bills = Bills::all();
-        $customers = User::clients()->latest()->paginate(10);
+        $groupId = Auth::user()->group_id; // Assuming staff has a group_id field
+
+        // Smart customer fetch based on group
+        $customerQuery = User::clients(); // Assume scopeClients() returns only customers
+
+        if ($groupId !== null && $groupId != 0) {
+            $customerQuery->where('group_id', $groupId);
+        }
+
+        $customers = $customerQuery->latest()->paginate(10);
+
+
+
         return view("pages.billing.index", compact("customers"));
     }
 

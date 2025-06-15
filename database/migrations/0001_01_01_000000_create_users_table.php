@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->string('group_id')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->string('address');
@@ -20,7 +21,6 @@ return new class extends Migration
             $table->string('status')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('meter_number')->nullable();
-            $table->string('group')->nullable();
             $table->string('password');
             $table->string('role')->default('client');
             $table->rememberToken();

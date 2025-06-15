@@ -50,6 +50,8 @@ class LoginController extends Controller
 
         if ($user->role === 'client') {
             return '/customer/record';
+        } else if ($user->role === 'staff') {
+            return 'billing';
         }
 
         return '/home'; // or your admin/dashboard page

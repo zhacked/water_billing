@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Bills;
+use App\Models\group;
 use App\Models\MeterReading;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -28,7 +29,7 @@ class User extends Authenticatable
         'address',
         'contact_number',
         'meter_number',
-        'group'
+        'group_id'
     ];
 
     /**
@@ -76,5 +77,10 @@ class User extends Authenticatable
     public function latestMeter()
     {
         return $this->hasOne(MeterReading::class, 'user_id', 'id')->latestOfMany('reading_date');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(group::class, 'group_id', 'id');
     }
 }

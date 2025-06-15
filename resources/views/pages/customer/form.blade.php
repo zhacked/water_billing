@@ -70,13 +70,9 @@
 
                     <x-form.select 
                         label="Group" 
-                        name="group" 
-                        :options="[
-                            'A' => 'Group A',
-                            'B' => 'Group B',
-                            'C' => 'Group C',
-                        ]" 
-                        :selected="old('group_id', '')" 
+                        name="group_id" 
+                        :options="$groups->pluck('name', 'id')->toArray()" 
+                        :selected="old('group_id', isset($group) ? $group->id : '')" 
                     />
 
                 </div>

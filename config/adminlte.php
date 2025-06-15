@@ -14,9 +14,10 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
+    'title' => 'Water Billing System',
     'title_prefix' => '',
     'title_postfix' => '',
+
 
     /*
     |--------------------------------------------------------------------------
@@ -30,7 +31,7 @@ return [
     |
     */
 
-    'use_ico_only' => false,
+    'use_ico_only' => true,
     'use_full_favicon' => false,
 
     /*
@@ -63,7 +64,7 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
+    'logo' => '<b>Water Billing</b> System',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -336,7 +337,7 @@ return [
             'text' => 'Billing',
             'url' => 'billing',
             'icon' => '	fas fa-money-bill',
-            'can' => 'admin section',
+            'can' => 'staff section',
         ],
         [
             'text' => 'Record',
@@ -348,6 +349,12 @@ return [
             'text' => 'Expenses',
             'url' => 'expenses',
             'icon' => 'far fa-credit-card',
+            'can' => 'admin section',
+        ],
+        [
+            'text' => 'Group',
+            'url' => 'groups',
+            'icon' => 'fas fa-mask',
             'can' => 'admin section',
         ],
         // ['header' => 'account_settings'],

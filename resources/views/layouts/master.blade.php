@@ -44,15 +44,13 @@
 {{-- Add common CSS customizations --}}
 @push('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<style type="text/css">
-    {{-- You can add AdminLTE customizations here --}}
-    /*
-    .card-header {
-        border-bottom: none;
+
+    <style type="text/css">
+    .bg-semi-transparent {
+        background-color: rgba(255, 255, 255, 0.8) !important; /* white with 80% opacity */
+        border-radius: 100px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
     }
-    .card-title {
-        font-weight: 600;
-    }
-    */
-</style>
+    </style>
 @endpush

@@ -18,7 +18,10 @@
 /public/storage
 /storage/*.key
 /storage/pail
-/vendor
+/vendor/*
+!/vendor/jeroennoten/
+/vendor/jeroennoten/*
+!/vendor/jeroennoten/*
 Homestead.json
 Homestead.yaml
 npm-debug.log

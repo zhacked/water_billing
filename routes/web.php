@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Auth;
+use App\Services\SemaphoreSmsService;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillsController;
 use App\Http\Controllers\GroupController;
@@ -28,6 +29,11 @@ Route::group(['middleware' => ['auth', 'role:admin,staff']], function () {
 
     // -------------------------- Bills ----------------------//
     Route::get('client/transaction/{id}', [BillsController::class, 'clientTransaction'])->name('transaction.history');
+
+    // -------------------------- sms ----------------------//
+    Route::get('/test-sms', function (SemaphoreSmsService $smsService) {
+        $smsService->sendSms('09061237968', 'Yo! This is a test from your Laravel 12 app. 💥');
+    });
 
     Route::resource('billing', BillsController::class);
     Route::resource('meter', MeterReadingController::class);

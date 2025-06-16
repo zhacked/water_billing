@@ -106,6 +106,15 @@
                     const consumed = current - prev;
                     const total = consumed * price;
 
+                    if (current < prev) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops!',
+                            text: 'The current reading must be greater than or equal to previous reading.'
+                        });
+                        return;
+                    }
+
                     const receiptHtml = `
                         <div style="font-family: 'Courier New', monospace; font-size: 12px; width: 240px; margin: 0 auto; padding: 10px; text-align: center;">
                             <h2 style="font-size: 14px; margin: 0;">WATER BILLING RECEIPT</h2>

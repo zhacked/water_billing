@@ -7,6 +7,7 @@ use App\Models\Bills;
 use App\Models\MeterReading;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Services\SemaphoreSmsService;
 
 class MeterReadingController extends Controller
 {
@@ -29,9 +30,17 @@ class MeterReadingController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Request $request)
+    {
+        //
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request,  SemaphoreSmsService $smsService)
     {
         try {
             $validated = $request->validate([
@@ -61,7 +70,6 @@ class MeterReadingController extends Controller
             $consumption =  $validated['current_reading'] - $validated['previous_reading'];
             $amount_due = $consumption * $validated['amount'];
 
-
             // Store the new meter reading
             $validated['reading_date'] = today();
             $meter = MeterReading::create($validated);
@@ -76,6 +84,18 @@ class MeterReadingController extends Controller
                 'penalty' => 0,
                 'is_paid' => false
             ]);
+
+            $user = User::find($validated['user_id'])->first();
+            $message = "Hi {$user->name}, your water meter reading has been recorded.\n" .
+                "Consumption: {$consumption} m³\n" .
+                "Amount Due: PHP " . number_format($amount_due, 2) . "\n" .
+                "Due Date: " . \Carbon\Carbon::parse($bill->due_date)->format('M d, Y');
+
+            try {
+                $smsService->sendSms($user->contact_number, $message);
+            } catch (\Exception $e) {
+                Log::error("Failed to send SMS: " . $e->getMessage());
+            }
 
 
             return redirect()->route('billing.index')->with('success', 'Meter reading recorded successfully.');
@@ -99,8 +119,9 @@ class MeterReadingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MeterReading $meter)
+    public function update(Request $request,  SemaphoreSmsService $smsService)
     {
+
         try {
             $validated = $request->validate([
                 'user_id' => 'required|exists:users,id',
@@ -109,81 +130,50 @@ class MeterReadingController extends Controller
                 'amount' => 'required|numeric|min:0',
             ]);
 
-            // Check if user_id is being updated
-            if ($validated['user_id'] != $meter->user_id) {
-                // Get the latest reading for the new user
-                $latestReading = MeterReading::where('user_id', $validated['user_id'])
-                    ->latest('reading_date')
-                    ->first();
 
-                // If no previous reading exists for the new user, override 'previous_reading' to 0
-                if (!$latestReading) {
-                    $validated['previous_reading'] = 0;
-                } else {
-                    // Check if previous reading matches the last recorded current reading for the new user
-                    if ($validated['previous_reading'] != $latestReading->current_reading) {
-                        return redirect()->route('billing.index')->with('error', 'Previous reading must match the last recorded current reading (' . $latestReading->current_reading . ')');
-                    }
-                }
-            } else {
-                // Get the reading before the one being updated
-                $previousReading = MeterReading::where('user_id', $validated['user_id'])
-                    ->where('reading_date', '<', $meter->reading_date)
-                    ->latest('reading_date')
-                    ->first();
-
-                // Get the reading after the one being updated
-                $nextReading = MeterReading::where('user_id', $validated['user_id'])
-                    ->where('reading_date', '>', $meter->reading_date)
-                    ->oldest('reading_date')
-                    ->first();
-
-                // If no previous reading exists and no next reading exists, allow any previous reading
-                if (!$previousReading && !$nextReading) {
-                    // do nothing
-                } elseif (!$previousReading && $nextReading) {
-                    // Check if current reading is being updated to a value less than the next reading
-                    if ($nextReading->previous_reading > $validated['current_reading']) {
-                        return back()->withErrors([
-                            'current_reading' => 'Current reading must be less than or equal to the next recorded previous reading (' . $nextReading->previous_reading . ').'
-                        ])->withInput();
-                    }
-                } else {
-                    // Check if previous reading matches the last recorded current reading
-                    if ($validated['previous_reading'] != $previousReading->current_reading) {
-                        return back()->withErrors([
-                            'previous_reading' => 'Previous reading must match the last recorded current reading (' . $previousReading->current_reading . ').'
-                        ])->withInput();
-                    }
-
-                    // Check if current reading is being updated to a value less than the next reading
-                    if ($nextReading) {
-                        if ($nextReading->previous_reading > $validated['current_reading']) {
-                            return back()->withErrors([
-                                'current_reading' => 'Current reading must be less than or equal to the next recorded previous reading (' . $nextReading->previous_reading . ').'
-                            ])->withInput();
-                        }
-                    }
-                }
-            }
 
             // Update the meter reading
             $validated['reading_date'] = today();
-            $meter = MeterReading::create($validated);
+            $latestMeterUser = MeterReading::where('user_id', $validated['user_id'])
+                ->latest('reading_date')
+                ->first();
 
-            $consumption =  $validated['current_reading'] - $validated['previous_reading'];
-            $amount_due = $consumption * $validated['amount'];
+            $previousReading = $latestMeterUser?->current_reading ?? 0;
+
+            // We're treating current_reading input as a delta/increment
+            $finalCurrentReading = $previousReading + $validated['current_reading'];
+
+            $consumption = $validated['current_reading']; // the actual increment
+            $amountDue = $consumption * $validated['amount'];
+
+            $meter = MeterReading::create([
+                'user_id' => $validated['user_id'],
+                'previous_reading' => $previousReading,
+                'current_reading' => $finalCurrentReading,
+                'reading_date' => today(),
+                'amount' => $validated['amount'],
+            ]);
 
             $bill = Bills::create([
                 'user_id' => $validated['user_id'],
                 'meter_reading_id' => $meter->id,
                 'billing_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d'),
                 'consumption' =>  $consumption,
-                'amount_due' =>    $amount_due,
+                'amount_due' =>  $amountDue,
                 'due_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d'),
                 'penalty' => 0,
                 'is_paid' => false
             ]);
+
+
+            $user = User::where('id', $validated['user_id'])->first();
+            $message = "Hi {$user->name}, your water meter reading has been recorded.\n" .
+                "Consumption: {$consumption} m³\n" .
+                "Amount Due: PHP " . number_format($amountDue, 2) . "\n" .
+                "Due Date: " . \Carbon\Carbon::parse($bill->due_date)->format('M d, Y');
+
+
+            $smsService->sendSms($user->contact_number, $message);
 
             return redirect()->route('billing.index')->with('success', 'Meter reading updated successfully.');
         } catch (\Exception $e) {
@@ -205,7 +195,7 @@ class MeterReadingController extends Controller
 
     public function readingMeter($id)
     {
-        $meter = MeterReading::where('user_id', $id)->first();
+        $meter = MeterReading::where('user_id', $id)->latest()->first();
         $customer = User::clients()->where('id', $id)->first();
         return view("pages.billing.form", compact('customer', 'meter'));
     }

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Bills;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\SemaphoreSmsService;
 
 class BillsController extends Controller
 {
@@ -26,57 +27,19 @@ class BillsController extends Controller
 
         $customers = $customerQuery->latest()->paginate(10);
 
-
-
         return view("pages.billing.index", compact("customers"));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function sendSms(Request $request, SemaphoreSmsService $smsService)
     {
-        //
-    }
+        $number = $request->input('number'); // e.g. 0917xxxxxxx
+        $message = $request->input('message'); // your message
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if ($smsService->sendSms($number, $message)) {
+            return response()->json(['status' => 'Message sent!']);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Bills $bills)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Bills $bills)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Bills $bills)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Bills $bills)
-    {
-        //
+        return response()->json(['status' => 'Failed to send'], 500);
     }
 
     public function clientTransaction($id)

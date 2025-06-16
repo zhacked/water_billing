@@ -86,17 +86,13 @@ class MeterReadingController extends Controller
             ]);
 
             $user = User::find($validated['user_id'])->first();
-            $message = "Hi {$user->name}, your water meter reading has been recorded.\n" .
-                "Consumption: {$consumption} m³\n" .
+            $user = User::where('id', $validated['user_id'])->first();
+            $message = "Hi {$user->name}, your first water meter reading has been recorded.\n" .
+                "First Reading: " .  $validated['current_reading'] . " m³" .  "\n" .
                 "Amount Due: PHP " . number_format($amount_due, 2) . "\n" .
                 "Due Date: " . \Carbon\Carbon::parse($bill->due_date)->format('M d, Y');
 
-            try {
-                $smsService->sendSms($user->contact_number, $message);
-            } catch (\Exception $e) {
-                Log::error("Failed to send SMS: " . $e->getMessage());
-            }
-
+            $smsService->sendSms($user->contact_number, $message);
 
             return redirect()->route('billing.index')->with('success', 'Meter reading recorded successfully.');
         } catch (\Exception $e) {
@@ -130,26 +126,20 @@ class MeterReadingController extends Controller
                 'amount' => 'required|numeric|min:0',
             ]);
 
-
-
             // Update the meter reading
             $validated['reading_date'] = today();
-            $latestMeterUser = MeterReading::where('user_id', $validated['user_id'])
-                ->latest('reading_date')
-                ->first();
 
-            $previousReading = $latestMeterUser?->current_reading ?? 0;
 
-            // We're treating current_reading input as a delta/increment
-            $finalCurrentReading = $previousReading + $validated['current_reading'];
 
-            $consumption = $validated['current_reading']; // the actual increment
+
+
+            $consumption = $validated['current_reading'] -  $validated['previous_reading'];
             $amountDue = $consumption * $validated['amount'];
 
             $meter = MeterReading::create([
                 'user_id' => $validated['user_id'],
-                'previous_reading' => $previousReading,
-                'current_reading' => $finalCurrentReading,
+                'previous_reading' =>  $validated['previous_reading'],
+                'current_reading' => $validated['current_reading'],
                 'reading_date' => today(),
                 'amount' => $validated['amount'],
             ]);
@@ -165,10 +155,11 @@ class MeterReadingController extends Controller
                 'is_paid' => false
             ]);
 
-
             $user = User::where('id', $validated['user_id'])->first();
             $message = "Hi {$user->name}, your water meter reading has been recorded.\n" .
-                "Consumption: {$consumption} m³\n" .
+                "Previous Reading: " . $validated['previous_reading'] . " m³" . "\n" .
+                "Current Reading: " .  $validated['current_reading'] . " m³" .  "\n" .
+                "Consumption: {$consumption} m³ \n" .
                 "Amount Due: PHP " . number_format($amountDue, 2) . "\n" .
                 "Due Date: " . \Carbon\Carbon::parse($bill->due_date)->format('M d, Y');
 

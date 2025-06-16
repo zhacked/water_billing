@@ -33,7 +33,6 @@ class MeterReadingController extends Controller
      */
     public function store(Request $request)
     {
-
         try {
             $validated = $request->validate([
                 'user_id' => 'required|exists:users,id',

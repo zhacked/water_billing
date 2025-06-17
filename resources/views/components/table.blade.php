@@ -35,7 +35,7 @@
                     <td>{{ $rows instanceof \Illuminate\Pagination\LengthAwarePaginator ? ($rows->firstItem() + $index) : $index + 1 }}</td>
                 @endif
 
-                @foreach($displayFields as $field)
+                @forelse ($displayFields as $field)
                     <td>
                        @if($field === 'status')
                             <span class="badge {{ $row->status === 'active' ? 'bg-success' : 'bg-danger' }}">
@@ -51,7 +51,11 @@
                             {{ data_get($row, $field) }}
                         @endif
                     </td>
-                @endforeach
+                @empty
+                    <td>
+                        <p> No Record Found </p>
+                    </td>
+                @endforelse
                 
 
                 @if($readingRoute || $historyRoute || $paymentRoute)

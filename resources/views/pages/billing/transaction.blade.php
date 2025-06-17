@@ -7,10 +7,11 @@
 @section('content_body')
     <div class="card" >
         <div class="card-header">
-            <strong>Client Name : </strong> {{ $customer->name }} | <strong>Meter Number: </strong> {{  $customer->meter_number}} | <strong class="text-red">Next Payment Date =  </strong>  {{ \Carbon\Carbon::parse($bill->first()->due_date)->format('F d, Y') }}
+            <strong>Client Name : </strong> {{ $customer->name }} | <strong>Meter Number: </strong> {{  $customer->meter_number}} | <strong class="text-red">Next Payment Date =  </strong>  {{ $bill->isNotEmpty() ? \Carbon\Carbon::parse($bill->first()->due_date)->format('F d, Y') : 'No record found' }}
         </div>
         <div class="card-body">
-        <x-table 
+        @if($bill->isNotEmpty())
+            <x-table 
             :headers="['Previous Reading', 'Present Reading', 'Consumption', 'Amount', 'Date', 'Bill Amount','Status' ]" 
             :rows="$bill"
             :displayFields="['previous_reading', 'current_reading', 'consumption', 'amount','billing_date','formatted_amount_due', 'is_paid']"
@@ -18,10 +19,17 @@
             hideId="true"
             paymentRoute="{{ route('payment.store') }}"
         />
+        @else
+          <h1>No Record Found</h1>
+        @endif
+       
         </div>
-        <div class="card-footer text-right">
-            <h1>Total Bill: ₱{{ number_format($totalUnpaid, 2) }}</h1>
-        </div>
+        @if($totalUnpaid > 0)
+            <div class="card-footer text-right">
+                <h1>Total Bill: ₱{{ number_format($totalUnpaid, 2) }}</h1>
+            </div>
+        @endif
+       
 
     </div>
 @stop

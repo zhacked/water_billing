@@ -129,10 +129,6 @@ class MeterReadingController extends Controller
             // Update the meter reading
             $validated['reading_date'] = today();
 
-
-
-
-
             $consumption = $validated['current_reading'] -  $validated['previous_reading'];
             $amountDue = $consumption * $validated['amount'];
 

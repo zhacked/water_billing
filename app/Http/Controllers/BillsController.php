@@ -15,11 +15,10 @@ class BillsController extends Controller
      */
     public function index()
     {
-        $bills = Bills::all();
         $groupId = Auth::user()->group_id; // Assuming staff has a group_id field
 
         // Smart customer fetch based on group
-        $customerQuery = User::clients(); // Assume scopeClients() returns only customers
+        $customerQuery = User::with('bills')->clients(); // Assume scopeClients() returns only customers
 
         if ($groupId !== null && $groupId != 0) {
             $customerQuery->where('group_id', $groupId);

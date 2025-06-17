@@ -69,7 +69,7 @@
                     />
 
                     <x-form.select 
-                        label="Group" 
+                        label="Group name :  {{ isset($customer)  ?  $customer?->group->name : 'No group chosen'}}" 
                         name="group_id" 
                         :options="$groups->pluck('name', 'id')->toArray()" 
                         :selected="old('group_id', isset($group) ? $group->id : '')" 

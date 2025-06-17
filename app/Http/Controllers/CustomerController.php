@@ -84,7 +84,6 @@ class CustomerController extends Controller
                 'contact_number' => ['required', 'string', 'max:15'],
                 'status' => ['nullable', 'in:active,inactive'], // optional but useful
                 'meter_number' => 'required|numeric',
-                'group_id' => 'required',
             ]);
 
             $customer->update($validated);

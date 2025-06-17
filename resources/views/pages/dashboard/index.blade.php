@@ -220,6 +220,10 @@
 
         // fallback to fill missing months with 0
         const incomeData = Array.from({ length: 12 }, (_, i) => monthlyIncomeData[i] ?? 0);
+        const totalIncome = incomeData
+        .map(val => Number(val) || 0) // ensure all values are numeric
+        .reduce((acc, val) => acc + val, 0)
+        .toFixed(2);
 
         const incomeBarChart = new Chart(barCtx, {
             type: 'bar',
@@ -229,7 +233,10 @@
                     'July', 'August', 'September', 'October', 'November', 'December'
                 ],
                 datasets: [{
-                    label: 'Monthly Income (₱)',
+                    label: `Income (₱${parseFloat(totalIncome).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })})`,
                     data: incomeData,
                     backgroundColor: 'rgba(40, 167, 69, 0.7)',
                     borderColor: 'rgba(40, 167, 69, 1)',

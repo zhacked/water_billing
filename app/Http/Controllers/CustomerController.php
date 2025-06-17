@@ -86,6 +86,7 @@ class CustomerController extends Controller
                 'meter_number' => 'required|numeric',
             ]);
 
+            $validated['group_id'] = $request->group_id;
             $customer->update($validated);
 
             return redirect()

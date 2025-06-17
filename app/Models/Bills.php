@@ -45,6 +45,7 @@ class Bills extends Model
         return '₱' . number_format($this->amount_due, 2);
     }
 
+
     public function meterReading()
     {
         return $this->belongsTo(MeterReading::class, 'meter_reading_id', 'id');

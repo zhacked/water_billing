@@ -27,6 +27,7 @@ class MeterReading extends Model
         return $this->reading_date->format('M d, Y');
     }
 
+
     public function bills()
     {
         return $this->belongsTo(Bills::class, 'meter_reading_id', 'id');

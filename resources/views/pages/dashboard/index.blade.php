@@ -112,20 +112,61 @@
 
     {{-- Client Transactions Table --}}
     <div class="card mt-4 col-md-12">
-        <div class="card-header">
-            <h3 class="card-title">Client Transactions</h3>
-        </div>
+        <div class="card card-outline card-primary mt-4">
+            <div class="card-header">
+                <h3 class="card-title">Client Transactions</h3>
+            </div>
 
-        <div class="card-body table-responsive p-0">
-            <x-table 
-                :headers="['Previous Reading', 'Present Reading', 'Consumption', 'Amount', 'Date', 'Bill Amount','Status' ]" 
-                :rows="$transaction"
-                :displayFields="['previous_reading', 'current_reading', 'consumption', 'amount','billing_date','formatted_amount_due', 'is_paid']"
-                showIndex="true"
-                hideId="true"
-            />
+            <div class="card-body p-0">
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs" id="custom-tabs" role="tablist">
+                        @php $activeTab = true; @endphp
+                        @foreach($groupedTransactions as $groupName => $data)
+                            <li class="nav-item">
+                                <a class="nav-link @if($activeTab) active @endif" 
+                                id="{{ Str::slug($groupName) }}-tab" 
+                                data-toggle="tab" 
+                                href="#{{ Str::slug($groupName) }}" 
+                                role="tab" 
+                                aria-controls="{{ Str::slug($groupName) }}" 
+                                aria-selected="{{ $activeTab ? 'true' : 'false' }}">
+                                    {{ $groupName }}
+                                </a>
+                            </li>
+                            @php $activeTab = false; @endphp
+                        @endforeach
+                    </ul>
+
+                    <div class="tab-content p-3">
+                        @php $activeTab = true; @endphp
+                        @foreach($groupedTransactions as $groupName => $data)
+                            <div class="tab-pane fade @if($activeTab) show active @endif" 
+                                id="{{ Str::slug($groupName) }}" 
+                                role="tabpanel" 
+                                aria-labelledby="{{ Str::slug($groupName) }}-tab">
+
+                                {{-- Table Component --}}
+                                <x-table 
+                                    :headers="['Client Name', 'Consumption', 'Amount', 'Due Date', 'Bill Amount', 'Status']" 
+                                    :rows="$data['transactions']"
+                                    :displayFields="['name','consumption', 'amount','billing_date','formatted_amount_due', 'is_paid']"
+                                    showIndex="true"
+                                    hideId="true"
+                                />
+
+                                <div class="mt-3">
+                                    <strong>Total Collectibles ({{ $groupName }}): ₱{{ number_format($data['total_due'], 2) }}</strong>
+                                </div>
+                            </div>
+                            @php $activeTab = false; @endphp
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
+
 
     
     {{-- Monthly Income Report Bar Graph --}}

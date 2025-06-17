@@ -20,17 +20,14 @@
             paymentRoute="{{ route('payment.store') }}"
         />
         @else
-          <h1>No Record Found</h1>
+            <h1>No Record Found</h1>
         @endif
-       
         </div>
         @if($totalUnpaid > 0)
             <div class="card-footer text-right">
                 <h1>Total Bill: ₱{{ number_format($totalUnpaid, 2) }}</h1>
             </div>
         @endif
-       
-
     </div>
 @stop
 

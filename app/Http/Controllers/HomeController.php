@@ -28,24 +28,50 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // Monthly financial reports
         $monthlyExpenses = $this->getMonthlySum(Expenses::class, 'amount', 'total_expenses');
         $monthlyIncome = $this->getMonthlySum(Payment::class, 'amount_paid', 'total_income');
-
         $monthlyIncomeReport = $this->getMonthlyIncomeReport();
 
+        // Calculations
         $totalExpenses = $monthlyIncomeReport->sum('total_expenses');
         $totalIncome = $monthlyIncomeReport->sum('total_income');
         $netProfit = $totalIncome - $totalExpenses;
 
+        // Client stats
         $monthlyPaidClients = $this->getMonthlyClientsByPaymentStatus(true);
         $monthlyUnPaidClients = $this->getMonthlyClientsByPaymentStatus(false);
-
         $totalClient = User::clients()->count();
         $totalStaff = User::staffs()->count();
 
-        $transaction = Bills::with(['user', 'meterReading'])->latest()->paginate(10);
+        // GROUPED TRANSACTIONS
+        $transactions = Bills::with(['user.group', 'meterReading'])
+            ->where('is_paid', 0)
+            ->latest()
+            ->paginate(10);
+
+        $grouped = $transactions->getCollection()->groupBy(function ($bill) {
+            return optional($bill->user->group)->name ?? 'No Group';
+        });
+
+        $groupedTransactions = $grouped->map(function ($groupBills) {
+            return [
+                'transactions' => $groupBills,
+                'total_due' => $groupBills->sum('amount_due'),
+            ];
+        });
+        // Replace the original collection in the paginator with the grouped version
+        $paginatedGrouped = new \Illuminate\Pagination\LengthAwarePaginator(
+            $groupedTransactions,
+            $transactions->total(),
+            $transactions->perPage(),
+            $transactions->currentPage(),
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('pages.dashboard.index', compact(
+            'transactions',
+            'groupedTransactions',
             'monthlyIncomeReport',
             'monthlyExpenses',
             'monthlyIncome',
@@ -53,8 +79,7 @@ class HomeController extends Controller
             'monthlyPaidClients',
             'monthlyUnPaidClients',
             'totalClient',
-            'totalStaff',
-            'transaction'
+            'totalStaff' // <-- this is your final grouped & paginated data
         ));
     }
 

@@ -48,7 +48,7 @@
                                 {{ $row->is_paid ? 'Paid' : 'Not Paid' }}
                             </span>
                         @else
-                            {{ data_get($row, $field) }}
+                            {{ data_get($row, key: $field) }}
                         @endif
                     </td>
                 @empty
@@ -59,7 +59,6 @@
                 
 
                 @if($readingRoute || $historyRoute || $paymentRoute)
-                   
                     <td>
                         @if($readingRoute )
                             <x-layouts.action-icon-button 
@@ -145,9 +144,9 @@
 
 
 
-    <div class="clearfix">
+    {{--  <div class="clearfix">
         {{ $rows->links('vendor.pagination.bootstrap-5') }}
-    </div>
+    </div>  --}}
 
 
     {{-- SweetAlert2 --}}

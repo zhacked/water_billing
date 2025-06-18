@@ -60,14 +60,21 @@
 
                 @if($readingRoute || $historyRoute || $paymentRoute)
                     <td>
-                        @if($readingRoute )
-                            <x-layouts.action-icon-button 
-                                        href="{{ route($readingRoute, $row->id) }}"
-                                        title="Read meter"
-                                        icon="front"
-                                        color="primary"
-                            />
+                        @if ($readingRoute)
+                            @php
+                                $latestBill = $row->bills->sortByDesc('created_at')->first();
+                            @endphp
+
+                            @if (is_null($latestBill) || !$latestBill->created_at->isToday())
+                                <x-layouts.action-icon-button 
+                                    href="{{ route($readingRoute, $row->id) }}"
+                                    title="Read meter"
+                                    icon="front"
+                                    color="primary"
+                                />
+                            @endif
                         @endif
+
                         @if($historyRoute)
                             <x-layouts.action-icon-button 
                                         href="{{ route($historyRoute, $row->id) }}"

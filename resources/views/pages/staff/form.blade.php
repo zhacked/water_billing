@@ -1,28 +1,28 @@
 @extends('layouts.master')
 
-@section('subtitle', isset($customer) ? 'Edit Customer' : 'Add New Customer')
-@section('content_header_title', isset($customer) ? 'Update Customer' : 'Create Customer')
+@section('subtitle', isset($staff) ? 'Edit staff' : 'Add New staff')
+@section('content_header_title', isset($staff) ? 'Update staff' : 'Create staff')
 
 @section('content_body')
 <div class="row">
     <div class="col-md-12  mt-4">
 
         {{-- Back Button --}}
-        <a href="{{ route('customer.index') }}" class="btn btn-secondary mb-3">
+        <a href="{{ route('staff.index') }}" class="btn btn-secondary mb-3">
             <i class="fas fa-arrow-left"></i> Back
         </a>
 
         <div class="card card-primary">
             <div class="card-header">
-                <h3 class="card-title">{{ isset($customer) ? 'Edit' : 'New' }} Customer Information</h3>
+                <h3 class="card-title">{{ isset($staff) ? 'Edit' : 'New' }} staff Information</h3>
             </div>
 
             <form 
                 method="POST" 
-                action="{{ isset($customer) ? route('customer.update', $customer->id) : route('customer.store') }}"
+                action="{{ isset($staff) ? route('staff.update', $staff->id) : route('staff.store') }}"
             >
                 @csrf
-                @if(isset($customer))
+                @if(isset($staff))
                     @method('PUT')
                 @endif
 
@@ -33,7 +33,7 @@
                         name="name" 
                         type="text" 
                         placeholder="Enter full name" 
-                        :value="old('name', $customer->name ?? '')"
+                        :value="old('name', $staff->name ?? '')"
                     />
 
                     <x-form.input 
@@ -41,7 +41,7 @@
                         name="email" 
                         type="email" 
                         placeholder="Enter email" 
-                        :value="old('email', $customer->email ?? '')"
+                        :value="old('email', $staff->email ?? '')"
                     />
 
                     <x-form.input 
@@ -49,7 +49,7 @@
                         name="address" 
                         type="text" 
                         placeholder="Enter address" 
-                        :value="old('address', $customer->address ?? '')"
+                        :value="old('address', $staff->address ?? '')"
                     />
 
                     <x-form.input 
@@ -57,19 +57,11 @@
                         name="contact_number" 
                         type="text" 
                         placeholder="Enter phone number"
-                        :value="old('contact_number', $customer->contact_number ?? '')"
-                    />
-
-                    <x-form.input 
-                        label="Meter Number" 
-                        name="meter_number" 
-                        type="number" 
-                        placeholder="Enter phone number"
-                        :value="old('meter_number', $customer->meter_number ?? '')"
+                        :value="old('contact_number', $staff->contact_number ?? '')"
                     />
 
                     <x-form.select 
-                        label="Group name :  {{ isset($customer)  ?  $customer?->group->name : 'No group chosen'}}" 
+                        label="Group name :  {{ isset($staff)  ?  $staff?->group->name : 'No group chosen'}}" 
                         name="group_id" 
                         :options="$groups->pluck('name', 'id')->toArray()" 
                         :selected="old('group_id', isset($group) ? $group->id : '')" 
@@ -79,7 +71,7 @@
 
                 <div class="card-footer text-right">
                     <x-form.submit-button 
-                        :label="isset($customer) ? 'Update' : 'Submit'" 
+                        :label="isset($staff) ? 'Update' : 'Submit'" 
                         class="btn btn-success" 
                     />
                 </div>

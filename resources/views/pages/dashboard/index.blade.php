@@ -39,7 +39,7 @@
         <div class="small-box bg-primary">
             <div class="inner">
                 <h3>₱{{ $monthlyIncome[0]->total_income ?? 0 }}</h3>
-                <p>Capital</p>
+                <p>Collected</p>
             </div>
             <div class="icon">
                 <i class="fas fa-piggy-bank"></i>

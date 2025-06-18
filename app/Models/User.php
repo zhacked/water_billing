@@ -29,7 +29,8 @@ class User extends Authenticatable
         'address',
         'contact_number',
         'meter_number',
-        'group_id'
+        'group_id',
+        'role',
     ];
 
     /**

@@ -5,6 +5,7 @@ use App\Services\SemaphoreSmsService;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillsController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpensesController;
@@ -44,8 +45,11 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
     // -------------------------- Customer ----------------------//
     Route::patch('/customer/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customer.toggleStatus');
 
+    Route::patch('/staff/{id}/toggle-status', [StaffController::class, 'toggleStaffStatus'])->name('staff.toggleStaffStatus');
+
     // -------------------------- Pages ----------------------//
     Route::resource('customer', CustomerController::class);
+    Route::resource('staff', StaffController::class);
     Route::resource('payment', PaymentController::class);
     Route::resource('expenses', ExpensesController::class);
     Route::resource('groups', GroupController::class);

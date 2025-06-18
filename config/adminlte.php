@@ -330,7 +330,13 @@ return [
         [
             'text' => 'customer',
             'url' => 'customer',
-            'icon' => 'far fa-fw fa-file',
+            'icon' => '	fas fa-user-friends',
+            'can' => 'admin section',
+        ],
+        [
+            'text' => 'staff',
+            'url' => 'staff',
+            'icon' => 'fas fa-user-tie',
             'can' => 'admin section',
         ],
         [

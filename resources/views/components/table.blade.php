@@ -11,6 +11,22 @@
     'showIndex' => false,
 ])
 
+<form method="GET" class="mb-3">
+    <div class="input-group" style="max-width: 400px;">
+        <input 
+            type="text" 
+            name="search" 
+            value="{{ request('search') }}" 
+            class="form-control" 
+            placeholder="Search name or meter number..."
+        >
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> {{-- Font Awesome icon (AdminLTE default) --}}
+            </button>
+        </div>
+    </div>
+</form>
 <table class="table table-bordered w-full">
     <thead>
         <tr>
@@ -257,3 +273,4 @@
         }
 
         </script>
+

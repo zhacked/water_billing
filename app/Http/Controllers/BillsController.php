@@ -13,20 +13,29 @@ class BillsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $groupId = Auth::user()->group_id; // Assuming staff has a group_id field
+        $groupId = Auth::user()->group_id;
+        $search = $request->input('search');
 
-        // Smart customer fetch based on group
-        $customerQuery = User::with('bills')->clients(); // Assume scopeClients() returns only customers
+        $customerQuery = User::with('bills')->clients();
 
-        if ($groupId !== null && $groupId != 0) {
+        // Filter by staff's group_id if set
+        if (!is_null($groupId) && $groupId != 0) {
             $customerQuery->where('group_id', $groupId);
         }
 
-        $customers = $customerQuery->latest()->paginate(10);
+        // Search by name or meter number
+        if (!empty($search)) {
+            $customerQuery->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('meter_number', 'like', "%{$search}%");
+            });
+        }
 
-        return view("pages.billing.index", compact("customers"));
+        $customers = $customerQuery->latest()->paginate(10)->appends(['search' => $search]);
+
+        return view("pages.billing.index", compact("customers", "search"));
     }
 
     public function sendSms(Request $request, SemaphoreSmsService $smsService)

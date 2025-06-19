@@ -11,11 +11,26 @@ class ExpensesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $expenses = Expenses::with('user')->latest()->paginate(10);
-        return view("pages.expenses.index", compact("expenses"));
+        $search = $request->input('search');
+
+        $expenseQuery = Expenses::with('user');
+
+        if (!empty($search)) {
+            $expenseQuery->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $expenses = $expenseQuery->latest()->paginate(10)->appends(['search' => $search]);
+
+        return view("pages.expenses.index", compact("expenses", "search"));
     }
+
 
     /**
      * Show the form for creating a new resource.

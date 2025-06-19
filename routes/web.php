@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use App\Services\SemaphoreSmsService;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BillsController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\StaffController;
@@ -45,7 +46,11 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
     // -------------------------- Customer ----------------------//
     Route::patch('/customer/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customer.toggleStatus');
 
+    // -------------------------- Staff ----------------------//
     Route::patch('/staff/{id}/toggle-status', [StaffController::class, 'toggleStaffStatus'])->name('staff.toggleStaffStatus');
+
+    // -------------------------- Record ----------------------//
+    Route::get('record', [HomeController::class, 'record'])->name('record.index');
 
     // -------------------------- Pages ----------------------//
     Route::resource('customer', CustomerController::class);

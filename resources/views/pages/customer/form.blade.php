@@ -27,6 +27,13 @@
                 @endif
 
                 <div class="card-body">
+                    <x-form.input 
+                        label="Client ID"  
+                        name="account_id"  
+                        type="text" 
+                        :value="old('account_id', $customer->account_id ?? '')"
+                        readonly
+                    />
 
                     <x-form.input 
                         label="Full Name" 
@@ -88,3 +95,12 @@
     </div>
 </div>
 @stop
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.querySelector('input[name="account_id"]');
+            if (input && !input.value) {
+                const uniqueId = 'A' + new Date().getFullYear().toString().slice(2) + Math.floor(1000000000 + Math.random() * 9000000000);
+                input.value = uniqueId;
+            }
+        });
+    </script>

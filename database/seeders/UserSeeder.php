@@ -28,6 +28,7 @@ class UserSeeder extends Seeder
                 'remember_token' => Str::random(10),
             ],
             [
+                'account_id' => 'A18599963662',
                 'name' => 'Client User',
                 'email' => 'client@example.com',
                 'address' => '456 Client Blvd',

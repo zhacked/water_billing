@@ -139,7 +139,7 @@
 
                     <div class="tab-content p-3">
                         @php $activeTab = true; @endphp
-                        @foreach($groupedTransactions as $groupName => $data)
+                        @forelse($groupedTransactions as $groupName => $data)
                             <div class="tab-pane fade @if($activeTab) show active @endif" 
                                 id="{{ Str::slug($groupName) }}" 
                                 role="tabpanel" 
@@ -159,7 +159,9 @@
                                 </div>
                             </div>
                             @php $activeTab = false; @endphp
-                        @endforeach
+                        @empty
+                            <h1>No Record Found</h1>
+                        @endforelse
                     </div>
                 </div>
             </div>

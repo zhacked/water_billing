@@ -10,10 +10,19 @@ class GroupController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $groups = group::latest()->paginate(10);
-        return view("pages.group.index", compact("groups"));
+        $search = $request->input('search');
+
+        $groupQuery = Group::query();
+
+        if (!empty($search)) {
+            $groupQuery->where('name', 'like', "%{$search}%");
+        }
+
+        $groups = $groupQuery->latest()->paginate(10)->appends(['search' => $search]);
+
+        return view("pages.group.index", compact("groups", "search"));
     }
 
     /**

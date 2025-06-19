@@ -74,9 +74,15 @@ class MeterReadingController extends Controller
             $validated['reading_date'] = today();
             $meter = MeterReading::create($validated);
 
+            do {
+                $billRef = 'B1' . now()->timestamp . mt_rand(10, 99);
+            } while (Bills::where('bill_ref', $billRef)->exists());
+
+
             $bill = Bills::create([
                 'user_id' => $validated['user_id'],
                 'meter_reading_id' => $meter->id,
+                'bill_ref' =>  $billRef,
                 'billing_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d'),
                 'consumption' =>  $consumption,
                 'amount_due' =>    $amount_due,

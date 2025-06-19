@@ -31,6 +31,7 @@ class User extends Authenticatable
         'meter_number',
         'group_id',
         'role',
+        'account_id'
     ];
 
     /**

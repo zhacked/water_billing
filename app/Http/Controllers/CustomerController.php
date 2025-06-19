@@ -16,10 +16,23 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $customers = User::clients()->with('group')->latest()->paginate(10);
-        return view("pages.customer.index", compact("customers"));
+        $search = $request->input('search');
+
+        $customers = User::clients()
+            ->with('group')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('meter_number', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->appends(['search' => $search]); // keeps query string in pagination
+
+        return view("pages.customer.index", compact("customers", "search"));
     }
 
     /**
@@ -44,6 +57,7 @@ class CustomerController extends Controller
             'contact_number' => 'required|string|max:15',
             'meter_number' => 'required|numeric',
             'group_id' => 'required',
+            'account_id' => 'required',
         ]);
 
         $employee = User::create([
@@ -84,6 +98,7 @@ class CustomerController extends Controller
                 'contact_number' => ['required', 'string', 'max:15'],
                 'status' => ['nullable', 'in:active,inactive'], // optional but useful
                 'meter_number' => 'required|numeric',
+                'account_id' => 'required',
             ]);
 
             $validated['group_id'] = $request->group_id;
@@ -117,6 +132,9 @@ class CustomerController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->back()->with('success', 'Client Deleted successfully!');
     }
 }

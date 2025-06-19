@@ -363,6 +363,12 @@ return [
             'icon' => 'fas fa-mask',
             'can' => 'admin section',
         ],
+        [
+            'text' => 'Record',
+            'url' => 'record',
+            'icon' => 'fas fa-sitemap',
+            'can' => 'admin section',
+        ],
         // ['header' => 'account_settings'],
         // [
         //     'text' => 'profile',

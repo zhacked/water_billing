@@ -16,11 +16,25 @@ class StaffController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $staffs = User::staffs()->with('group')->latest()->paginate(10);
-        return view("pages.staff.index", compact("staffs"));
+        $search = $request->input('search');
+
+        $staffs = User::staffs()
+            ->with('group')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('meter_number', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->appends(['search' => $search]); // keeps query string in pagination
+
+        return view("pages.staff.index", compact("staffs", "search"));
     }
+
 
     /**
      * Show the form for creating a new resource.

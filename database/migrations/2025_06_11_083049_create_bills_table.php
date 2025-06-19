@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('meter_reading_id')->constrained();
+            $table->string('bill_ref')->unique();
             $table->date('billing_date');
             $table->integer('consumption');
             $table->decimal('amount_due', 10, 2);

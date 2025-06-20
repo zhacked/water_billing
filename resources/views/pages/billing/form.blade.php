@@ -120,7 +120,7 @@
                     const receiptHtml = `
                         <div style="font-family: 'Courier New', monospace; font-size: 12px; width: 240px; margin: 0 auto; padding: 10px; text-align: center;">
                             <h2 style="font-size: 14px; margin: 0;">WATER BILLING RECEIPT</h2>
-                            <p style="margin: 4px 0;">Company Name</p>
+                            <p style="margin: 4px 0;">Pantukan Waterworks</p>
                             <p style="margin: 4px 0;">${new Date().toLocaleString()}</p>
                             <hr style="border-top: 1px dashed #000;" />
 

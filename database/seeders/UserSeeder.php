@@ -29,6 +29,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'account_id' => 'A18599963662',
+                'category_id' => 1,
                 'name' => 'Client User',
                 'email' => 'client@example.com',
                 'address' => '456 Client Blvd',
@@ -43,6 +44,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Plumber',
+                'category_id' => 1,
                 'email' => 'plumber@example.com',
                 'address' => '789 Plumber Ave',
                 'contact_number' => '1122334455',
@@ -55,6 +57,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Cashier',
+                'category_id' => 1,
                 'email' => 'cashier@example.com',
                 'address' => '789 cashier Ave',
                 'contact_number' => '1122334455',

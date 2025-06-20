@@ -238,12 +238,24 @@
 
             Swal.fire({
                 title: `Payment for ${name}`,
-                html: `<p>Amount Due: <strong>${formattedAmount}</strong></p>`,
+                html: `
+                    <input id="refNumber" class="swal2-input mb-4" placeholder="Enter Reference Number">
+                    <p>Amount Due: <strong>${formattedAmount}</strong></p>
+                `,
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonText: 'Proceed to Pay',
+                preConfirm: () => {
+                    const refNumber = document.getElementById('refNumber').value.trim();
+                    if (!refNumber) {
+                        Swal.showValidationMessage('Reference number is required');
+                    }
+                    return { refNumber }; // pass it forward
+                }
             }).then(result => {
                 if (result.isConfirmed) {
+                    const refNumber = result.value.refNumber;
+
                     fetch(url, {
                         method: 'POST',
                         headers: {
@@ -254,23 +266,23 @@
                             name: name,
                             amount: amount,
                             user_id: user_id,
-                            id: id
+                            id: id,
+                            reference_number: refNumber
                         })
                     })
                     .then(data => {
-    
-                        if (data.status = 200) {
+                        if (data.status === 200) {
                             Swal.fire('Success', 'Payment has been processed!', 'success').then(() => {
                                 location.reload();
                             });
-                        } else {
-                            Swal.fire('Oops!', data.message || 'Something went wrong.', 'error');
-                        }
+                        } 
                     })
-                
+                    .catch(err => {
+                        Swal.fire('Error', 'Something went really wrong.', 'error');
+                    });
                 }
             });
         }
+    </script>
 
-        </script>
 

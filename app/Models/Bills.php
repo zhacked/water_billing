@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Payment;
 use App\Models\MeterReading;
 use Illuminate\Database\Eloquent\Model;
 
@@ -58,5 +59,10 @@ class Bills extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function payments()
+    {
+        return $this->belongsTo(Payment::class, 'id', 'bill_id');
     }
 }

@@ -121,9 +121,8 @@ class MeterReadingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request,  SemaphoreSmsService $smsService)
+    public function update(Request $request, SemaphoreSmsService $smsService)
     {
-
         try {
             $validated = $request->validate([
                 'user_id' => 'required|exists:users,id',
@@ -132,39 +131,44 @@ class MeterReadingController extends Controller
                 'amount' => 'required|numeric|min:0',
             ]);
 
-            // Update the meter reading
-            $validated['reading_date'] = today();
+            // Make sure reading_date is explicitly set in your timezone and in proper format
+            $validated['reading_date'] = now()->timezone('Asia/Manila')->format('Y-m-d');
 
-            $consumption = $validated['current_reading'] -  $validated['previous_reading'];
+            $consumption = $validated['current_reading'] - $validated['previous_reading'];
             $amountDue = $consumption * $validated['amount'];
+            do {
+                $billRef = 'B1' . now()->timestamp . mt_rand(10, 99);
+            } while (Bills::where('bill_ref', $billRef)->exists());
 
             $meter = MeterReading::create([
                 'user_id' => $validated['user_id'],
-                'previous_reading' =>  $validated['previous_reading'],
+                'previous_reading' => $validated['previous_reading'],
                 'current_reading' => $validated['current_reading'],
-                'reading_date' => today(),
+                'reading_date' => $validated['reading_date'], // using fixed version here
                 'amount' => $validated['amount'],
             ]);
+
+            $dueDate = now()->addDays(30)->timezone('Asia/Manila')->format('Y-m-d');
 
             $bill = Bills::create([
                 'user_id' => $validated['user_id'],
                 'meter_reading_id' => $meter->id,
-                'billing_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d'),
-                'consumption' =>  $consumption,
-                'amount_due' =>  $amountDue,
-                'due_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d'),
+                'bill_ref' =>  $billRef,
+                'billing_date' => $dueDate,
+                'consumption' => $consumption,
+                'amount_due' => $amountDue,
+                'due_date' => $dueDate,
                 'penalty' => 0,
                 'is_paid' => false
             ]);
 
-            $user = User::where('id', $validated['user_id'])->first();
+            $user = User::find($validated['user_id']);
             $message = "Hi {$user->name}, your water meter reading has been recorded.\n" .
-                "Previous Reading: " . $validated['previous_reading'] . " m³" . "\n" .
-                "Current Reading: " .  $validated['current_reading'] . " m³" .  "\n" .
-                "Consumption: {$consumption} m³ \n" .
+                "Previous Reading: {$validated['previous_reading']} m³\n" .
+                "Current Reading: {$validated['current_reading']} m³\n" .
+                "Consumption: {$consumption} m³\n" .
                 "Amount Due: PHP " . number_format($amountDue, 2) . "\n" .
                 "Due Date: " . \Carbon\Carbon::parse($bill->due_date)->format('M d, Y');
-
 
             $smsService->sendSms($user->contact_number, $message);
 
@@ -173,8 +177,10 @@ class MeterReadingController extends Controller
             Log::error('Exception caught: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
+            return back()->with('error', 'Something went wrong while updating the meter reading.');
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

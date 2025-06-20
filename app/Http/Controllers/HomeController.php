@@ -147,7 +147,7 @@ class HomeController extends Controller
         $toDate = $request->input('to_date');
 
         // TRANSACTIONS QUERY
-        $transactionQuery = Bills::with(['user.group', 'meterReading'])->where('is_paid', 0);
+        $transactionQuery = Bills::with(['user.group', 'meterReading', 'payments']);
         $selectedGroup = group::where('id', $groupId)->first();
 
         // Filter by group
@@ -201,11 +201,11 @@ class HomeController extends Controller
                 fputcsv($handle, ['LGU PANTUKAN WATER WORKS']);
                 fputcsv($handle, ['CASHIER BILLING REPORT']);
                 fputcsv($handle, ['BILLING PERIOD: ' . $formattedFrom . ' - ' . $formattedTo]);
-                fputcsv($handle, ['BILLING TYPE: ' . $selectedGroup->name]);
+                fputcsv($handle, ['BILLING TYPE: ' . $selectedGroup?->name]);
                 fputcsv($handle, []); // Empty row for spacing
 
                 // === TABLE HEADERS ===
-                fputcsv($handle, ['ACCOUNT_ID', 'CUSTOMER', 'CONSUMPTION', 'BILL_REF', 'BILLING_PERIOD', 'PENALTY', 'TOTAL_AMOUNT_DUE', 'STATUS', 'RECEIPT_NUMBER', 'OR_DATE']);
+                fputcsv($handle, ['ACCOUNT_ID', 'CUSTOMER', 'CONSUMPTION', 'BILL_REF', 'BILLING_PERIOD', 'PENALTY', 'TOTAL_AMOUNT_DUE', 'STATUS', 'REFERENCE_NUMBER', 'OR_DATE']);
 
                 $hasData = false;
 
@@ -216,11 +216,11 @@ class HomeController extends Controller
                             $transaction->user->name ?? 'N/A',
                             $transaction->consumption,
                             $transaction->bill_ref ?? 'N/A',
-                            $fromDate . ' - ' . $toDate,
+                            $fromDate ?? 'all' . ' - ' . $toDate,
                             number_format($transaction->penalty, 2),
                             number_format($transaction->amount_due, 2),
                             $transaction->is_paid ? 'Paid' : 'Not Paid',
-                            $transaction->id,
+                            $transaction->payments?->reference_number ?? 'N/A',
                             Carbon::now()->format('F j, Y'),
                         ]);
                         $hasData = true;

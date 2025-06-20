@@ -40,9 +40,8 @@ class PaymentController extends Controller
             'bill_id' => $request->id,
             'amount_paid' => $request->amount,
             'payment_type' => 'Cash',
-            'reference_number' => 'ABC123',
+            'reference_number' => $request->reference_number,
             'payment_date' => \Carbon\Carbon::now(),
-
         ]);
 
         return redirect()->back()->with('success', 'Payment created successfully.');

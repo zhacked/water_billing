@@ -25,7 +25,8 @@ class MeterReadingController extends Controller
      */
     public function create()
     {
-        $customers = User::clients()->latest()->get();
+        $customers = User::with('category')->clients()->latest()->get();
+
         return view("pages.meter_reading.form", compact('customers'));
     }
 
@@ -195,7 +196,7 @@ class MeterReadingController extends Controller
     public function readingMeter($id)
     {
         $meter = MeterReading::where('user_id', $id)->latest()->first();
-        $customer = User::clients()->where('id', $id)->first();
+        $customer = User::with('category')->clients()->where('id', $id)->first();
         return view("pages.billing.form", compact('customer', 'meter'));
     }
 }

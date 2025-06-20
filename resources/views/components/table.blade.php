@@ -55,9 +55,10 @@
                     <td>
                        @if($field === 'status')
                           @php
-                                $status = 'active';
-                                $badgeClass = 'bg-success';
-                                if ($row->status === 'for disconnection') {
+                                if($row->status === 'active'){
+                                    $status = 'active';
+                                    $badgeClass = 'bg-success';
+                                }elseif ($row->status === 'for disconnection') {
                                     $status = 'for disconnection';
                                     $badgeClass = 'bg-warning text-white';
                                 } elseif ($row->status === 'inactive') {

@@ -328,32 +328,43 @@ return [
             'icon' => '	fas fa-coins',
             'can' => 'admin section',
         ],
-        ['header' => 'User Management'],
         [
-            'text' => 'customer',
-            'url' => 'customer',
-            'icon' => '	fas fa-user-friends',
-            'can' => 'admin section',
+            'text' => 'User Management',
+            'icon' => 'fas fa-fw fa-share',
+            'submenu' => [
+                [
+                    'text' => 'customer',
+                    'url' => 'customer',
+                    'icon' => '	fas fa-user-friends',
+                    'can' => 'admin section',
+                ],
+                [
+                    'text' => 'staff',
+                    'url' => 'staff',
+                    'icon' => 'fas fa-user-tie',
+                    'can' => 'admin section',
+                ],
+            ],
         ],
         [
-            'text' => 'staff',
-            'url' => 'staff',
-            'icon' => 'fas fa-user-tie',
-            'can' => 'admin section',
-        ],
-        ['header' => 'Reports'],
-        [
-            'text' => 'Billing',
-            'url' => 'billing',
-            'icon' => '	fas fa-money-bill',
-            'can' => 'staff section',
-        ],
-        [
-            'text' => 'Record',
-            'url' => 'customer/record',
+            'text' => 'Reports',
             'icon' => 'fas fa-chart-pie',
-            'can' => 'client section',
+            'submenu' => [
+                [
+                    'text' => 'Billing',
+                    'url' => 'billing',
+                    'icon' => '	fas fa-money-bill',
+                    'can' => 'staff section',
+                ],
+                [
+                    'text' => 'Record',
+                    'url' => 'customer/record',
+                    'icon' => 'fas fa-chart-pie',
+                    'can' => 'client section',
+                ],
+            ],
         ],
+
         ['header' => 'Others'],
         [
             'text' => 'Expenses',

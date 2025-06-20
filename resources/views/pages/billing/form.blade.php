@@ -55,7 +55,8 @@
                         name="amount" 
                         type="number" 
                         placeholder="Enter Amount per ML" 
-                        value="" 
+                        value="{{  $customer->category->amount }}" 
+                        readonly
                     />
                 </div>
 

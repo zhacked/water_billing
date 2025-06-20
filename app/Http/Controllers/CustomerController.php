@@ -38,7 +38,7 @@ class CustomerController extends Controller
         $customers->getCollection()->transform(function ($customer) {
             $unpaidCount = $customer->bills->where('is_paid', '!=', 1)->count();
 
-            if ($unpaidCount <= 3) {
+            if ($unpaidCount >= 3) {
                 $customer->status = 'for disconnection';
                 $customer->save();
             }

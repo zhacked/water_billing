@@ -18,7 +18,7 @@ class BillsController extends Controller
         $groupId = Auth::user()->group_id;
         $search = $request->input('search');
 
-        $customerQuery = User::with('bills')->clients();
+        $customerQuery = User::with('bills', 'category')->clients();
 
         // Filter by staff's group_id if set
         if (!is_null($groupId) && $groupId != 0) {

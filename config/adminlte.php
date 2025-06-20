@@ -311,6 +311,7 @@ return [
             'topnav_right' => true,
         ],
 
+
         // Sidebar items:
         [
             'type' => 'sidebar-menu-search',
@@ -327,6 +328,7 @@ return [
             'icon' => '	fas fa-coins',
             'can' => 'admin section',
         ],
+        ['header' => 'User Management'],
         [
             'text' => 'customer',
             'url' => 'customer',
@@ -339,6 +341,7 @@ return [
             'icon' => 'fas fa-user-tie',
             'can' => 'admin section',
         ],
+        ['header' => 'Reports'],
         [
             'text' => 'Billing',
             'url' => 'billing',
@@ -351,6 +354,7 @@ return [
             'icon' => 'fas fa-chart-pie',
             'can' => 'client section',
         ],
+        ['header' => 'Others'],
         [
             'text' => 'Expenses',
             'url' => 'expenses',

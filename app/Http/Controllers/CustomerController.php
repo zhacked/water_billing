@@ -119,6 +119,7 @@ class CustomerController extends Controller
                 'category_id' => 'required',
             ]);
 
+
             $validated['group_id'] = $request->group_id;
             $customer->update($validated);
 

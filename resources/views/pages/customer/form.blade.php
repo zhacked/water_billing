@@ -76,14 +76,14 @@
                     />
 
                     <x-form.select 
-                        label="Group name :  {{ isset($customer)  ?  $customer?->group->name : 'No group chosen'}}" 
+                        label="Group name :  {{ isset($customer)  ?  $customer?->group?->name : 'No group chosen'}}" 
                         name="group_id" 
                         :options="$groups->pluck('name', 'id')->toArray()" 
                         :selected="old('group_id', isset($group) ? $group->id : '')" 
                     />
 
                     <x-form.select 
-                        label="Category Type"
+                        label="Category Type :  {{ isset($customer)  ?  $customer?->category?->name : 'No group chosen'}}"
                         name="category_id"
                         :options="$category->toArray()"
                         :selected="old('category_id', isset($category) ? '' : '')" 

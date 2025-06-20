@@ -52,14 +52,28 @@ class BillsController extends Controller
 
     public function clientTransaction($id)
     {
+        $customer = User::findOrFail($id);
 
-        $customer = User::where('id', $id)->first();
+        $bill = Bills::with(['user', 'meterReading'])
+            ->where('user_id', $id)
+            ->latest()
+            ->paginate(10);
 
-        $bill = Bills::with(['user', 'meterReading'])->where('user_id', $id)->latest()->paginate(10);
+        $today = now(); // or Carbon::now()
+
+        $bill->getCollection()->transform(function ($b) use ($today) {
+            if (!$b->is_paid && $b->due_date < $today) {
+                $penalty = $b->amount_due * 0.10;
+                $b->penalty = $penalty;
+                $b->save();
+            }
+            return $b;
+        });
 
         $totalUnpaid = Bills::where('user_id', $id)
             ->where('is_paid', false)
             ->sum('amount_due');
+
         return view("pages.billing.transaction", compact("bill", 'customer', 'totalUnpaid'));
     }
 }

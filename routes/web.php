@@ -8,6 +8,7 @@ use App\Http\Controllers\BillsController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\DashboardController;
@@ -58,4 +59,5 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
     Route::resource('payment', PaymentController::class);
     Route::resource('expenses', ExpensesController::class);
     Route::resource('groups', GroupController::class);
+    Route::resource('category', CategoryController::class);
 });

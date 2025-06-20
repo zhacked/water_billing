@@ -31,7 +31,8 @@ class User extends Authenticatable
         'meter_number',
         'group_id',
         'role',
-        'account_id'
+        'account_id',
+        'category_id'
     ];
 
     /**
@@ -64,7 +65,7 @@ class User extends Authenticatable
 
     public function scopeStaffs($query)
     {
-        return $query->where('role', 'staff');
+        return $query->whereIn('role', ['cashier', 'plumber']);
     }
 
     public function meter()

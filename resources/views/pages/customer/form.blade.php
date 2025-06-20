@@ -82,6 +82,14 @@
                         :selected="old('group_id', isset($group) ? $group->id : '')" 
                     />
 
+                    <x-form.select 
+                        label="Category Type"
+                        name="category_id"
+                        :options="$category->toArray()"
+                        :selected="old('category_id', isset($category) ? '' : '')" 
+                    />
+
+
                 </div>
 
                 <div class="card-footer text-right">

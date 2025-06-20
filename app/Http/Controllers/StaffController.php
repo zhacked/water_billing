@@ -63,14 +63,14 @@ class StaffController extends Controller
 
         $employee = User::create([
             ...$validated,
-            'role' => 'staff',
+            'role' => $request->role,
             'status' => 'active',
             'password' => Hash::make('password123'),
         ]);
 
 
         // Assign the 'staff' role using Spatie
-        $employee->assignRole('staff');
+        $employee->assignRole($request->role);
 
         return redirect()->route('staff.index')->with('success', 'Employee created successfully.');
     }

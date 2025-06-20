@@ -369,6 +369,12 @@ return [
             'icon' => 'fas fa-sitemap',
             'can' => 'admin section',
         ],
+        [
+            'text' => 'category',
+            'url' => 'category',
+            'icon' => 'fas fa-sitemap',
+            'can' => 'admin section',
+        ],
         // ['header' => 'account_settings'],
         // [
         //     'text' => 'profile',

@@ -54,9 +54,22 @@
                 @forelse ($displayFields as $field)
                     <td>
                        @if($field === 'status')
-                            <span class="badge {{ $row->status === 'active' ? 'bg-success' : 'bg-danger' }}">
-                                {{ ucfirst($row->status) }}
-                            </span>
+                          @php
+                                $status = 'active';
+                                $badgeClass = 'bg-success';
+                                if ($row->status === 'for disconnection') {
+                                    $status = 'for disconnection';
+                                    $badgeClass = 'bg-warning text-white';
+                                } elseif ($row->status === 'inactive') {
+                                    $status = 'inactive';
+                                    $badgeClass = 'bg-secondary';
+                                }
+                                @endphp
+
+                                <span class="badge {{ $badgeClass }}">
+                                {{ ucfirst($status) }}
+                                </span>
+
                         @elseif($field === 'is_paid')
                             {{--  {{ $row->is_paid ?  'bg-green-500' : 'bg-red-500' }}  --}}
                             <span class="badge  inline-block px-3 py-1 rounded-full text-white text-sm font-semibold 

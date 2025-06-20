@@ -67,6 +67,12 @@
                         :selected="old('group_id', isset($group) ? $group->id : '')" 
                     />
 
+                    <x-form.select 
+                        label="Staff Role: {{ isset($staff)  ?  $staff->role: 'No group chosen'}}" 
+                        name="role" 
+                        :options="['cashier' => 'Cashier', 'plumber' => 'Plumber']" 
+                        :selected="old('role', $staff->role ?? '')" 
+                    />
                 </div>
 
                 <div class="card-footer text-right">

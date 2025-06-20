@@ -42,6 +42,14 @@
             </div>
         </div>
 
+        @if($clients->status === 'for disconnection')
+        <div style="flex: 1 1 65%; display: flex; flex-direction: column; gap: 20px;">
+            <div class="card shadow rounded-lg p-4" style="background-color: #f9f9f9;">
+                    <p> Hello user , This is a disconnection notice  </p>
+            </div>
+        </div>
+        @endif
+
     </div>
 @stop
 

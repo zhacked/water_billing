@@ -35,8 +35,14 @@ class RolePermissionSeeder extends Seeder
             'client section',
         ]);
 
-        $staff = Role::firstOrCreate(['name' => 'staff']);
-        $staff->syncPermissions([
+        $plumber = Role::firstOrCreate(['name' => 'plumber']);
+        $plumber->syncPermissions([
+            'access dashboard',
+            'staff section',
+        ]);
+
+        $cashier = Role::firstOrCreate(['name' => 'cashier']);
+        $cashier->syncPermissions([
             'access dashboard',
             'staff section',
         ]);

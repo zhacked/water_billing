@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\group;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -21,7 +23,7 @@ class CustomerController extends Controller
         $search = $request->input('search');
 
         $customers = User::clients()
-            ->with('group')
+            ->with('group', 'bills')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -30,7 +32,19 @@ class CustomerController extends Controller
             })
             ->latest()
             ->paginate(10)
-            ->appends(['search' => $search]); // keeps query string in pagination
+            ->appends(['search' => $search]); // Keeps query string in pagination
+
+        // Tag customers that are for disconnection (unpaid + overdue)
+        $customers->getCollection()->transform(function ($customer) {
+            $unpaidCount = $customer->bills->where('is_paid', '!=', 1)->count();
+
+            if ($unpaidCount <= 3) {
+                $customer->status = 'for disconnection';
+                $customer->save();
+            }
+
+            return $customer;
+        });
 
         return view("pages.customer.index", compact("customers", "search"));
     }
@@ -41,7 +55,8 @@ class CustomerController extends Controller
     public function create()
     {
         $groups = group::latest()->get();
-        return view("pages.customer.form", compact("groups"));
+        $category = Category::pluck('name', 'id');
+        return view("pages.customer.form", compact("groups", "category"));
     }
 
     /**
@@ -58,6 +73,7 @@ class CustomerController extends Controller
             'meter_number' => 'required|numeric',
             'group_id' => 'required',
             'account_id' => 'required',
+            'category_id' => 'required',
         ]);
 
         $employee = User::create([
@@ -80,7 +96,8 @@ class CustomerController extends Controller
     {
         $customer = User::findOrFail($id);
         $groups = group::latest()->get();
-        return view('pages.customer.form', compact('customer', 'groups'));
+        $category = Category::pluck('name', 'id');
+        return view('pages.customer.form', compact('customer', 'groups', 'category'));
     }
 
     /**
@@ -99,6 +116,7 @@ class CustomerController extends Controller
                 'status' => ['nullable', 'in:active,inactive'], // optional but useful
                 'meter_number' => 'required|numeric',
                 'account_id' => 'required',
+                'category_id' => 'required',
             ]);
 
             $validated['group_id'] = $request->group_id;

@@ -54,8 +54,8 @@
                         label="Price/ ML" 
                         name="amount" 
                         type="number" 
-                        placeholder="Enter Amount per ML" 
-                        value="{{  $customer->category->amount }}" 
+                        placeholder="{{  $customer->category?->amount ?? 'please choose a category'}}" 
+                        value="{{  $customer->category?->amount ?? 'please choose a category'}}" 
                         readonly
                     />
                 </div>

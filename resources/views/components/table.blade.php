@@ -89,7 +89,8 @@
 
                 @if($readingRoute || $historyRoute || $paymentRoute)
                     <td>
-                        @if ($readingRoute)
+                
+                        @if ($readingRoute && (auth()->user()->role === 'plumber' || auth()->user()->role === 'admin'))
                             @php
                                 $latestBill = $row->bills->sortByDesc('created_at')->first();
                             @endphp
@@ -104,7 +105,7 @@
                             @endif
                         @endif
 
-                        @if($historyRoute)
+                        @if($historyRoute && (auth()->user()->role === 'cashier' || auth()->user()->role === 'admin'))
                             <x-layouts.action-icon-button 
                                         href="{{ route($historyRoute, $row->id) }}"
                                         title="History"

@@ -364,17 +364,18 @@ return [
             'can' => 'admin section',
         ],
         [
+            'text' => 'category',
+            'url' => 'category',
+            'icon' => 'far fa-handshake',
+            'can' => 'admin section',
+        ],
+        [
             'text' => 'Record',
             'url' => 'record',
             'icon' => 'fas fa-sitemap',
             'can' => 'admin section',
         ],
-        [
-            'text' => 'category',
-            'url' => 'category',
-            'icon' => 'fas fa-sitemap',
-            'can' => 'admin section',
-        ],
+
         // ['header' => 'account_settings'],
         // [
         //     'text' => 'profile',

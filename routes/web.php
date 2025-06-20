@@ -26,7 +26,7 @@ Route::group(['middleware' => ['auth', 'role:client']], function () {
     Route::get('/customer/record', [ClientPageController::class, 'index'])->name('client.index');
 });
 
-Route::group(['middleware' => ['auth', 'role:admin,staff']], function () {
+Route::group(['middleware' => ['auth', 'role:admin,plumber,cashier']], function () {
     // -------------------------- Meter REading ----------------------//
     Route::get('reading-meter/{id}', [MeterReadingController::class, 'readingMeter'])->name('reading.meter');
 

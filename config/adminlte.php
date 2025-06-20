@@ -372,7 +372,7 @@ return [
                     'text' => 'Expenses',
                     'url' => 'expenses',
                     'icon' => 'far fa-credit-card',
-                    'can' => 'admin section',
+                    'can' => 'client section',
                 ],
                 [
                     'text' => 'Group',

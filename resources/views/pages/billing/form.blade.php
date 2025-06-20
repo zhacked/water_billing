@@ -116,6 +116,7 @@
                         return;
                     }
 
+                    document.getElementById('meterForm').submit();
                     const receiptHtml = `
                         <div style="font-family: 'Courier New', monospace; font-size: 12px; width: 240px; margin: 0 auto; padding: 10px; text-align: center;">
                             <h2 style="font-size: 14px; margin: 0;">WATER BILLING RECEIPT</h2>
@@ -164,10 +165,10 @@
             }
 
             // Listen for post-print message
-            window.addEventListener('message', function(event) {
+            {{--  window.addEventListener('message', function(event) {
                 if (event.data === 'print-done') {
                     document.getElementById('meterForm').submit();
                 }
-            });
+            });  --}}
             </script>
 @endpush

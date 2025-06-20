@@ -364,32 +364,37 @@ return [
                 ],
             ],
         ],
+        [
+            'text' => 'Others',
+            'icon' => '	fas fa-unlock-alt',
+            'submenu' => [
+                [
+                    'text' => 'Expenses',
+                    'url' => 'expenses',
+                    'icon' => 'far fa-credit-card',
+                    'can' => 'admin section',
+                ],
+                [
+                    'text' => 'Group',
+                    'url' => 'groups',
+                    'icon' => 'fas fa-mask',
+                    'can' => 'admin section',
+                ],
+                [
+                    'text' => 'category',
+                    'url' => 'category',
+                    'icon' => 'far fa-handshake',
+                    'can' => 'admin section',
+                ],
+                [
+                    'text' => 'Record',
+                    'url' => 'record',
+                    'icon' => 'fas fa-sitemap',
+                    'can' => 'admin section',
+                ],
+            ],
+        ],
 
-        ['header' => 'Others'],
-        [
-            'text' => 'Expenses',
-            'url' => 'expenses',
-            'icon' => 'far fa-credit-card',
-            'can' => 'admin section',
-        ],
-        [
-            'text' => 'Group',
-            'url' => 'groups',
-            'icon' => 'fas fa-mask',
-            'can' => 'admin section',
-        ],
-        [
-            'text' => 'category',
-            'url' => 'category',
-            'icon' => 'far fa-handshake',
-            'can' => 'admin section',
-        ],
-        [
-            'text' => 'Record',
-            'url' => 'record',
-            'icon' => 'fas fa-sitemap',
-            'can' => 'admin section',
-        ],
 
         // ['header' => 'account_settings'],
         // [

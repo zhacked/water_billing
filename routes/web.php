@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth', 'role:admin,plumber,cashier']], function 
 
     Route::resource('billing', BillsController::class);
     Route::resource('meter', MeterReadingController::class);
+    Route::resource('payment', PaymentController::class);
 });
 
 Route::group(['middleware' => ['auth', 'role:admin']], function () {
@@ -56,7 +57,6 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
     // -------------------------- Pages ----------------------//
     Route::resource('customer', CustomerController::class);
     Route::resource('staff', StaffController::class);
-    Route::resource('payment', PaymentController::class);
     Route::resource('expenses', ExpensesController::class);
     Route::resource('groups', GroupController::class);
     Route::resource('category', CategoryController::class);

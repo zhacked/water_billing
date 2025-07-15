@@ -22,11 +22,12 @@
         >
         <div class="input-group-append">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-search"></i> {{-- Font Awesome icon (AdminLTE default) --}}
+                <i class="fas fa-search"></i>
             </button>
         </div>
     </div>
 </form>
+
 <table class="table table-bordered w-full">
     <thead>
         <tr>
@@ -53,27 +54,38 @@
 
                 @forelse ($displayFields as $field)
                     <td>
-                       @if($field === 'status')
-                          @php
-                                if($row->status === 'active'){
-                                    $status = 'active';
-                                    $badgeClass = 'bg-success';
-                                }elseif ($row->status === 'for disconnection') {
-                                    $status = 'for disconnection';
-                                    $badgeClass = 'bg-warning text-white';
-                                } elseif ($row->status === 'inactive') {
-                                    $status = 'inactive';
-                                    $badgeClass = 'bg-secondary';
-                                }
-                                @endphp
+                        @if($field === 'status')
+                            @php
+                                $status = $row->status;
+                                $badgeClass = match($status) {
+                                    'active' => 'bg-success',
+                                    'for disconnection' => 'bg-warning text-white',
+                                    'inactive' => 'bg-secondary',
+                                    default => 'bg-secondary',
+                                };
+                            @endphp
 
+                            <div class="d-flex flex-column">
                                 <span class="badge {{ $badgeClass }}">
-                                {{ ucfirst($status) }}
+                                    {{ ucfirst($status) }}
                                 </span>
 
+                                @if($status === 'for disconnection')
+                                    <button 
+                                        class="btn btn-sm btn-outline-success mt-1 settle-button"
+                                        data-name="{{ $row->name }}"
+                                        data-amount="{{ $row->amount_due }}"
+                                        data-user="{{ $row->account_id }}"
+                                        data-id="{{ $row->id }}"
+                                        data-url="{{ $paymentRoute }}"
+                                    >
+                                    Reconnect 🧩
+                                    </button>
+                                @endif
+                            </div>
+
                         @elseif($field === 'is_paid')
-                            {{--  {{ $row->is_paid ?  'bg-green-500' : 'bg-red-500' }}  --}}
-                            <span class="badge  inline-block px-3 py-1 rounded-full text-white text-sm font-semibold 
+                            <span class="badge inline-block px-3 py-1 rounded-full text-white text-sm font-semibold 
                                 {{ $row->is_paid ? 'bg-success' : 'bg-danger' }}">
                                 {{ $row->is_paid ? 'Paid' : 'Not Paid' }}
                             </span>
@@ -83,14 +95,12 @@
                     </td>
                 @empty
                     <td>
-                        <p> No Record Found </p>
+                        <p>No Record Found</p>
                     </td>
                 @endforelse
-                
 
                 @if($readingRoute || $historyRoute || $paymentRoute)
                     <td>
-                
                         @if ($readingRoute && (auth()->user()->role === 'plumber' || auth()->user()->role === 'admin'))
                             @php
                                 $latestBill = $row->bills->sortByDesc('created_at')->first();
@@ -108,12 +118,13 @@
 
                         @if($historyRoute && (auth()->user()->role === 'cashier' || auth()->user()->role === 'admin'))
                             <x-layouts.action-icon-button 
-                                        href="{{ route($historyRoute, $row->id) }}"
-                                        title="History"
-                                        icon="eye"
-                                        color="primary"
+                                href="{{ route($historyRoute, $row->id) }}"
+                                title="History"
+                                icon="eye"
+                                color="primary"
                             />
                         @endif
+
                         @if($paymentRoute && !$row->is_paid )
                             <x-layouts.action-icon-button 
                                 href="javascript:void(0);"
@@ -122,14 +133,14 @@
                                 icon="cash-coin"
                                 color="primary"
                                 data-name="{{ $row->user->name }}"
-                                data-amount="{{ $row->amount_due}}"
-                                data-user="{{ $row->user_id}}"
-                                data-id="{{ $row->id}}"
-                                data-url="{{ $paymentRoute }}"
+                                data-amount="{{ $row->amount_due }}"
+                                data-user="{{ $row->user_id }}"
+                                data-id="{{ $row->id }}"
                             />
                         @endif
                     </td>
                 @endif
+
                 @if($editRoute || $deleteRoute || $editStatus)
                     <td>
                         @if($editStatus)
@@ -173,21 +184,11 @@
                             />
                         @endif
                     </td>
-
                 @endif
             </tr>
         @endforeach
     </tbody>
 </table>
-
-
-
-    {{--  <div class="clearfix">
-        {{ $rows->links('vendor.pagination.bootstrap-5') }}
-    </div>  --}}
-
-
-    {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
@@ -229,11 +230,10 @@
                 });
             });
         });
-    </script>
 
-    <script>
+        // Handle payment buttons (both original and "Settle Now")
         document.addEventListener('click', function (event) {
-            const button = event.target.closest('.payment-button');
+            const button = event.target.closest('.payment-button') || event.target.closest('.settle-button');
 
             if (button) {
                 showPaymentModal(button);
@@ -243,33 +243,40 @@
         function showPaymentModal(button) {
             const name = button.dataset.name;
             const amount = button.dataset.amount;
-            const url = button.dataset.url;
             const user_id = button.dataset.user;
             const id = button.dataset.id;
-            const formattedAmount = new Intl.NumberFormat('en-PH', {
-                style: 'currency',
-                currency: 'PHP'
-            }).format(amount);
+
+            // Fix URL here to include the actual id
+            const url = `/reconnect/${id}`;
 
             Swal.fire({
                 title: `Payment for ${name}`,
                 html: `
-                    <input id="refNumber" class="swal2-input mb-4" placeholder="Enter Reference Number">
-                    <p>Amount Due: <strong>${formattedAmount}</strong></p>
+                    <input id="refNumber" class="swal2-input mb-2" placeholder="Enter Reference Number">
+                    <input id="reconnectionFee" class="swal2-input" type="number" step="0.01" min="0" placeholder="Enter Reconnection Fee (PHP)">
                 `,
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonText: 'Proceed to Pay',
                 preConfirm: () => {
                     const refNumber = document.getElementById('refNumber').value.trim();
+                    const reconnectionFee = parseFloat(document.getElementById('reconnectionFee').value.trim());
+
                     if (!refNumber) {
                         Swal.showValidationMessage('Reference number is required');
+                        return false;
                     }
-                    return { refNumber }; // pass it forward
+
+                    if (isNaN(reconnectionFee) || reconnectionFee < 0) {
+                        Swal.showValidationMessage('Reconnection fee must be a valid non-negative number');
+                        return false;
+                    }
+
+                    return { refNumber, reconnectionFee };
                 }
             }).then(result => {
                 if (result.isConfirmed) {
-                    const refNumber = result.value.refNumber;
+                    const { refNumber, reconnectionFee } = result.value;
 
                     fetch(url, {
                         method: 'POST',
@@ -279,25 +286,29 @@
                         },
                         body: JSON.stringify({
                             name: name,
-                            amount: amount,
                             user_id: user_id,
                             id: id,
-                            reference_number: refNumber
+                            reference_number: refNumber,
+                            reconnection_fee: reconnectionFee
                         })
                     })
-                    .then(data => {
-                        if (data.status === 200) {
+                    .then(response => {
+                        if (response.ok) {
                             Swal.fire('Success', 'Payment has been processed!', 'success').then(() => {
                                 location.reload();
                             });
-                        } 
+                        } else {
+                            return response.json().then(data => {
+                                throw new Error(data.message || 'Unknown error');
+                            });
+                        }
                     })
                     .catch(err => {
-                        Swal.fire('Error', 'Something went really wrong.', 'error');
+                        Swal.fire('Error', err.message || 'Something went wrong.', 'error');
                     });
                 }
             });
         }
-    </script>
 
+    </script>
 

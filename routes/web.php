@@ -61,4 +61,6 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
 
     Route::resource('groups', GroupController::class);
     Route::resource('category', CategoryController::class);
+
+    Route::post('/reconnect/{id}', [PaymentController::class, 'Reconnect'])->name('payment.reconnect');
 });

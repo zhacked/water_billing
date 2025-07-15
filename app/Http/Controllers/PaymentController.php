@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Bills;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use App\Models\ReconnectionHistory;
 
 class PaymentController extends Controller
 {
@@ -80,5 +81,23 @@ class PaymentController extends Controller
     public function destroy(Payment $payment)
     {
         //
+    }
+
+    public function Reconnect(Request $request, $id)
+    {
+        $payment = ReconnectionHistory::create([
+            'user_id' => $id,
+            'amount_due' => $request->reconnection_fee,
+            'payment_type' => 'cash',
+            'reference_number' => $request->reference_number,
+        ]);
+
+        if ($payment) {
+            User::where('id', $id)->update([
+                "status" => "active",
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Reconnected successfully.');
     }
 }

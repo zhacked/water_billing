@@ -50,23 +50,31 @@
 
 </div>
 
-@if($clients->status === 'for disconnection')
-
+@if($clients->status === 'for disconnection' || $clients->status === 'inactive')
     <div class="modal fade" id="disconnectionModal" tabindex="-1" aria-labelledby="disconnectionModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-        <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title" id="disconnectionModalLabel">🚫 Disconnected</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white {{ $clients->status === 'inactive' ? 'bg-danger' : 'bg-warning' }}">
+                    <h5 class="modal-title" id="disconnectionModalLabel">
+                        🚫 {{ $clients->status === 'inactive' ? 'Disconnected' : 'For Disconnection Notice' }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="fs-5">
+                        Your account has been 
+                        <strong>{{ $clients->status === 'inactive' ? 'Disconnected' : 'marked for Disconnection' }}</strong>
+                        due to unpaid bills.
+                    </p>
+                    <p class="fs-5">
+                        Please go to the office and settle your payment to start the <strong>reconnection</strong> process for your water service.
+                    </p>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-            <p class="fs-5">Your account has been <strong>disconnected</strong> due to unpaid bills.</p>
-            <p class="fs-5">Please go to office and settle your payment to start the <strong>reconnection</strong> process for your water service.</p>
-        </div>
-        </div>
-    </div>
     </div>
 @endif
+
 
 @stop
 

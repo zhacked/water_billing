@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Water Billing System',
+    'title' => 'Water Billing Systems',
     'title_prefix' => '',
     'title_postfix' => '',
 

@@ -9,6 +9,8 @@
         <div class="card-header">
             <strong>Client Name : </strong> {{ $customer->name }} | <strong>Meter Number: </strong> {{  $customer->meter_number}} | <strong class="text-red">Next Payment Date =  </strong>  {{ $bill->isNotEmpty() ? \Carbon\Carbon::parse($bill->first()->due_date)->format('F d, Y') : 'No record found' }}
         </div>
+
+        
         <div class="card-body">
         @if($bill->isNotEmpty())
             <x-table 

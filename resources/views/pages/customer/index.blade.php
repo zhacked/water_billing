@@ -7,6 +7,7 @@
 @section('content_body')
 
         <x-layouts.add-button route="customer.create" label="Add User" />
+     
         <x-table 
             :headers="['Client ID','Name', 'Email', 'Contact Number','Meter Number', 'Address', 'Status']" 
             :rows="$customers"
@@ -17,6 +18,7 @@
             deleteRoute="customer.destroy"
             editStatus="customer.toggleStatus"
         />
+  
 
     </div>
 @stop

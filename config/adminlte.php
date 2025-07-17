@@ -357,7 +357,7 @@ return [
                     'can' => 'staff section',
                 ],
                 [
-                    'text' => 'Record',
+                    'text' => 'Record (Client)',
                     'url' => 'customer/record',
                     'icon' => 'fas fa-chart-pie',
                     'can' => 'client section',
@@ -387,7 +387,7 @@ return [
                     'can' => 'admin section',
                 ],
                 [
-                    'text' => 'Record',
+                    'text' => 'Record (Admin)',
                     'url' => 'record',
                     'icon' => 'fas fa-sitemap',
                     'can' => 'admin section',

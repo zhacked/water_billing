@@ -13,7 +13,20 @@
         <a href="{{ route('billing.index') }}" class="btn btn-secondary mb-3">
             <i class="fas fa-arrow-left"></i> Back
         </a>
-
+        @if ($customer->status == "for reconnection" || $customer->status == "inacive")
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow mb-4 card card-primary">
+                <h2 class="text-lg font-semibold card-header">Action Required</h2>
+                <p class="text-sm ">
+                    <h1>
+                        This client is currently <strong class="{{ $customer->status == "for reconnection" ? "text-warning" : "text-danger" }}">{{ $customer->status }}</strong>.<br>
+                        They need to settle an outstanding amount of 
+                        <span class="font-bold text-red-800">
+                            ₱{{ number_format($billAmount, 2) }}
+                        </span>
+                    </h1> 
+                </p>
+            </div>
+        @else
         <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">{{ isset($meter) ? 'Reading' : 'New' }} Meter</h3>
@@ -59,7 +72,7 @@
                         readonly
                     />
                 </div>
-
+                
                 <div class="card-footer text-right">
                     <x-form.submit-button 
                         label="Print Receipt" 
@@ -70,6 +83,8 @@
                 </div>
             </form>
         </div>
+        @endif
+       
     </div>
 </div>
 <div id="receipt-preview" class="d-none">
@@ -164,11 +179,5 @@
                 });
             }
 
-            // Listen for post-print message
-            {{--  window.addEventListener('message', function(event) {
-                if (event.data === 'print-done') {
-                    document.getElementById('meterForm').submit();
-                }
-            });  --}}
-            </script>
+    </script>
 @endpush

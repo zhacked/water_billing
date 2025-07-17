@@ -34,18 +34,6 @@ class CustomerController extends Controller
             ->paginate(10)
             ->appends(['search' => $search]); // Keeps query string in pagination
 
-        // Tag customers that are for disconnection (unpaid + overdue)
-        $customers->getCollection()->transform(function ($customer) {
-            $unpaidCount = $customer->bills->where('is_paid', '!=', 1)->count();
-
-            if ($unpaidCount >= 3) {
-                $customer->status = 'for disconnection';
-                $customer->save();
-            }
-
-            return $customer;
-        });
-
         return view("pages.customer.index", compact("customers", "search"));
     }
 

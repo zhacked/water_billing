@@ -146,9 +146,7 @@ class HomeController extends Controller
         $fromDate = $request->input('from_date');
         $toDate = $request->input('to_date');
 
-        // TRANSACTIONS QUERY
         $transactionQuery = Bills::with(['user.group', 'meterReading', 'payments']);
-        $selectedGroup = group::where('id', $groupId)->first();
 
         // Filter by group
         if (!empty($groupId)) {
@@ -169,7 +167,7 @@ class HomeController extends Controller
             $transactionQuery->whereDate('billing_date', '<=', Carbon::parse($toDate)->endOfDay());
         }
 
-        // Get the results
+        // Execute query
         $allTransactions = $transactionQuery->latest()->get();
 
         // Group transactions by group name
@@ -177,7 +175,7 @@ class HomeController extends Controller
             return optional($bill->user->group)->name ?? 'No Group';
         });
 
-        // Transform grouped data with totals
+        // Prepare for display
         $groupedTransactions = $grouped->map(function ($groupBills) {
             return [
                 'transactions' => $groupBills,
@@ -185,9 +183,11 @@ class HomeController extends Controller
             ];
         });
 
-        // Handle CSV export
+        // Export to CSV
         if ($request->input('export') === 'csv') {
-            $filename = 'client_report_' . now()->format('Ymd_His') . '.csv';
+            $selectedGroup = Group::find($groupId);
+            $filename = 'billing_report_' . now()->format('Ymd_His') . '.csv';
+
             $headers = [
                 'Content-Type' => 'text/csv',
                 'Content-Disposition' => "attachment; filename=\"$filename\"",
@@ -195,40 +195,57 @@ class HomeController extends Controller
 
             $callback = function () use ($selectedGroup, $groupedTransactions, $fromDate, $toDate) {
                 $handle = fopen('php://output', 'w');
-                $formattedFrom = $fromDate ? Carbon::parse($fromDate)->format('F j, Y') : 'N/A';
-                $formattedTo = $toDate ? Carbon::parse($toDate)->format('F j, Y') : 'N/A';
-                // === CUSTOM HEADER (like in the screenshot) ===
+
+                // Custom header
                 fputcsv($handle, ['LGU PANTUKAN WATER WORKS']);
                 fputcsv($handle, ['CASHIER BILLING REPORT']);
-                fputcsv($handle, ['BILLING PERIOD: ' . $formattedFrom . ' - ' . $formattedTo]);
-                fputcsv($handle, ['BILLING TYPE: ' . $selectedGroup?->name]);
-                fputcsv($handle, []); // Empty row for spacing
+                fputcsv($handle, [
+                    'BILLING PERIOD: ' .
+                        ($fromDate ? Carbon::parse($fromDate)->format('F j, Y') : 'N/A') .
+                        ' - ' .
+                        ($toDate ? Carbon::parse($toDate)->format('F j, Y') : 'N/A')
+                ]);
+                fputcsv($handle, ['BILLING TYPE: ' . ($selectedGroup?->name ?? 'ALL')]);
+                fputcsv($handle, []); // spacing row
 
-                // === TABLE HEADERS ===
-                fputcsv($handle, ['ACCOUNT_ID', 'CUSTOMER', 'CONSUMPTION', 'BILL_REF', 'BILLING_PERIOD', 'PENALTY', 'TOTAL_AMOUNT_DUE', 'STATUS', 'REFERENCE_NUMBER', 'OR_DATE']);
+                // Table header matching Excel format
+                fputcsv($handle, [
+                    'ACCOUNT ID',
+                    'CUSTOMER NAME',
+                    'CONSUMPTION (m³)',
+                    'BILL REF NO.',
+                    'BILLING PERIOD',
+                    'PENALTY',
+                    'TOTAL AMOUNT DUE',
+                    'PAYMENT STATUS',
+                    'REFERENCE NUMBER',
+                    'OR DATE'
+                ]);
 
                 $hasData = false;
 
-                foreach ($groupedTransactions as $groupName => $groupData) {
-                    foreach ($groupData['transactions'] as $transaction) {
+                foreach ($groupedTransactions as $group => $data) {
+                    foreach ($data['transactions'] as $transaction) {
                         fputcsv($handle, [
                             $transaction->user->account_id ?? 'N/A',
                             $transaction->user->name ?? 'N/A',
-                            $transaction->consumption,
+                            $transaction->consumption ?? 0,
                             $transaction->bill_ref ?? 'N/A',
-                            $fromDate ?? 'all' . ' - ' . $toDate,
+                            $transaction->billing_date ? Carbon::parse($transaction->billing_date)->format('F Y') : 'N/A',
                             number_format($transaction->penalty, 2),
                             number_format($transaction->amount_due, 2),
                             $transaction->is_paid ? 'Paid' : 'Not Paid',
-                            $transaction->payments?->reference_number ?? 'N/A',
-                            Carbon::now()->format('F j, Y'),
+                            optional($transaction->payments)->reference_number ?? 'N/A',
+                            optional($transaction->payments)->or_date
+                                ? Carbon::parse($transaction->payments->or_date)->format('F j, Y')
+                                : 'N/A',
                         ]);
                         $hasData = true;
                     }
                 }
 
                 if (!$hasData) {
-                    fputcsv($handle, ['No data found for selected filters.']);
+                    fputcsv($handle, ['No records found for the given filters.']);
                 }
 
                 fclose($handle);
@@ -237,7 +254,7 @@ class HomeController extends Controller
             return response()->stream($callback, 200, $headers);
         }
 
-        // Fetch all groups for dropdown
+        // Load groups for filter dropdown
         $groups = Group::all();
 
         return view('pages.report.index', compact('groups', 'groupedTransactions'));

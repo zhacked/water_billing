@@ -57,6 +57,7 @@
                         @if($field === 'status')
                             @php
                                 $status = $row->status;
+                             
                                 $badgeClass = match($status) {
                                     'active' => 'bg-success',
                                     'for disconnection' => 'bg-warning text-white',
@@ -64,13 +65,12 @@
                                     default => 'bg-secondary',
                                 };
                             @endphp
-
                             <div class="d-flex flex-column">
                                 <span class="badge {{ $badgeClass }}">
                                     {{ ucfirst($status) }}
                                 </span>
 
-                                @if($status === 'for disconnection')
+                                @if($status != 'active')
                                     <button 
                                         class="btn btn-sm btn-outline-success mt-1 settle-button"
                                         data-name="{{ $row->name }}"
@@ -103,17 +103,17 @@
                     <td>
                         @if ($readingRoute && (auth()->user()->role === 'plumber' || auth()->user()->role === 'admin'))
                             @php
-                                $latestBill = $row->bills->sortByDesc('created_at')->first();
+                                $latestBill = $row->bills->sortByDesc('billing_date')->first();
                             @endphp
-
-                            @if (is_null($latestBill) || !$latestBill->created_at->isToday())
+                       
+                           {{--  @if (optional( $latestBill?->billing_date )->isToday() && $latestBill != null  )  --}}
                                 <x-layouts.action-icon-button 
                                     href="{{ route($readingRoute, $row->id) }}"
                                     title="Read meter"
                                     icon="front"
                                     color="primary"
                                 />
-                            @endif
+                            {{--  @endif  --}}
                         @endif
 
                         @if($historyRoute && (auth()->user()->role === 'cashier' || auth()->user()->role === 'admin'))

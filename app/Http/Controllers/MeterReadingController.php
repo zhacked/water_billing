@@ -125,6 +125,7 @@ class MeterReadingController extends Controller
     public function update(Request $request, SemaphoreSmsService $smsService)
     {
         try {
+
             $validated = $request->validate([
                 'user_id' => 'required|exists:users,id',
                 'previous_reading' => 'required|numeric|min:0',
@@ -132,25 +133,54 @@ class MeterReadingController extends Controller
                 'amount' => 'required|numeric|min:0',
             ]);
 
-            // Make sure reading_date is explicitly set in your timezone and in proper format
             $validated['reading_date'] = now()->timezone('Asia/Manila')->format('Y-m-d');
+
+            // Fetch unpaid bills
+            $unpaidBills = Bills::where('user_id', $validated['user_id'])
+                ->where('is_paid', false)
+                ->orderByDesc('due_date')
+                ->get();
+
+            $unpaidCount = $unpaidBills->count();
+
+            // Apply 10% penalty to the most recent unpaid bill
+            if ($unpaidCount > 0) {
+                $latestUnpaidBill = $unpaidBills->first();
+                $latestUnpaidBill->penalty = $latestUnpaidBill->amount_due * 0.10;
+                $latestUnpaidBill->save();
+            }
+
+
+            $status = match (true) {
+                $unpaidCount >= 3 => 'inactive',
+                $unpaidCount === 2 => 'for reconnection',
+                default => null,
+            };
+
+            if ($status) {
+                User::where('id', $validated['user_id'])->update(['status' => $status]);
+            }
 
             $consumption = $validated['current_reading'] - $validated['previous_reading'];
             $amountDue = $consumption * $validated['amount'];
+
+            // Generate unique bill reference
             do {
                 $billRef = 'B1' . now()->timestamp . mt_rand(10, 99);
             } while (Bills::where('bill_ref', $billRef)->exists());
 
+            // Create meter reading
             $meter = MeterReading::create([
                 'user_id' => $validated['user_id'],
                 'previous_reading' => $validated['previous_reading'],
                 'current_reading' => $validated['current_reading'],
-                'reading_date' => $validated['reading_date'], // using fixed version here
+                'reading_date' => $validated['reading_date'],
                 'amount' => $validated['amount'],
             ]);
 
             $dueDate = now()->addDays(30)->timezone('Asia/Manila')->format('Y-m-d');
 
+            // Create new bill
             $bill = Bills::create([
                 'user_id' => $validated['user_id'],
                 'meter_reading_id' => $meter->id,
@@ -163,6 +193,7 @@ class MeterReadingController extends Controller
                 'is_paid' => false
             ]);
 
+            // Notify user
             $user = User::find($validated['user_id']);
             $message = "Hi {$user->name}, your water meter reading has been recorded.\n" .
                 "Previous Reading: {$validated['previous_reading']} m³\n" .
@@ -182,7 +213,6 @@ class MeterReadingController extends Controller
         }
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -197,6 +227,10 @@ class MeterReadingController extends Controller
     {
         $meter = MeterReading::where('user_id', $id)->latest()->first();
         $customer = User::with('category')->clients()->where('id', $id)->first();
-        return view("pages.billing.form", compact('customer', 'meter'));
+        $totalAmountDue = Bills::where('user_id', $id)->sum('amount_due');
+        $totalPenalties = Bills::where('user_id', $id)->sum('penalty');
+
+        $billAmount = $totalAmountDue + $totalPenalties;
+        return view("pages.billing.form", compact('customer', 'meter', 'billAmount'));
     }
 }

@@ -4,10 +4,24 @@
     {{ config('adminlte.classes_topnav_nav', 'navbar-expand') }}
     {{ config('adminlte.classes_topnav', 'navbar-white navbar-light') }}">
 
+    {{-- Navbar left hamburger icon --}}
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
+                <i class="fas fa-bars"></i>
+            </a>
+        </li>
+    </ul>
+
     {{-- Navbar right links --}}
     <ul class="navbar-nav ml-auto">
         {{-- Custom right links --}}
         @yield('content_top_nav_right')
+
+        {{-- Example static item (you had "enan") --}}
+        <li class="nav-item">
+            <span class="nav-link">enan</span>
+        </li>
 
         {{-- Configured right links --}}
         @each('adminlte::partials.navbar.menu-item', $adminlte->menu('navbar-right'), 'item')
@@ -40,8 +54,8 @@
         const darkMode = localStorage.getItem('darkMode');
         if (darkMode === 'enabled') {
             body.classList.add('dark-mode');
-            toggle.checked = true;
-            icon.textContent = '☀️';
+            if (toggle) toggle.checked = true;
+            if (icon) icon.textContent = '☀️';
         }
 
         // Toggle dark mode + icon
@@ -49,14 +63,13 @@
             if (this.checked) {
                 body.classList.add('dark-mode');
                 localStorage.setItem('darkMode', 'enabled');
-                icon.textContent = '☀️';
+                if (icon) icon.textContent = '☀️';
             } else {
                 body.classList.remove('dark-mode');
                 localStorage.setItem('darkMode', 'disabled');
-                icon.textContent = '🌙';
+                if (icon) icon.textContent = '🌙';
             }
         });
     });
 </script>
 @endpush
-

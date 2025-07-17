@@ -76,8 +76,6 @@ class HomeController extends Controller
             ];
         });
 
-
-
         return view('pages.dashboard.index', compact(
             'monthlyIncomeReport',
             'monthlyExpenses',
@@ -243,10 +241,34 @@ class HomeController extends Controller
 
             return response()->stream($callback, 200, $headers);
         }
-
-        // Load groups for dropdown
         $groups = Group::all();
 
-        return view('pages.report.index', compact('groups', 'latestTransactions'));
+        $transactionQuery = Bills::with(['user.group', 'meterReading'])->where('is_paid', 0);
+
+        if (!empty($search)) {
+            $transactionQuery->where(function ($query) use ($search) {
+                $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('group', function ($g) use ($search) {
+                            $g->where('name', 'like', "%{$search}%");
+                        });
+                });
+            });
+        }
+        $allTransactions = $transactionQuery->latest()->get();
+
+        // Group by group name
+        $grouped = $allTransactions->groupBy(function ($bill) {
+            return optional($bill->user->group)->name ?? 'No Group';
+        });
+        // Load groups for dropdown
+        $groupedTransactions = $grouped->map(function ($groupBills) {
+            return [
+                'transactions' => $groupBills,
+                'total_due' => $groupBills->sum('amount_due'),
+            ];
+        });
+
+        return view('pages.report.index', compact('groups', 'latestTransactions', 'groupedTransactions'));
     }
 }

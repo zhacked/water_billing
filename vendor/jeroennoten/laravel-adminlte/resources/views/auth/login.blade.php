@@ -20,12 +20,21 @@
     }
 @endphp
 
+@push('css')
+<style>
+    body.login-page {
+
+        background: url('/images/pantukan.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+</style>
+@endpush
 @section('auth_header', __('adminlte::adminlte.login_message'))
 
 @section('auth_body')
     <form action="{{ $loginUrl }}" method="post">
         @csrf
-
+        
         {{-- Email field --}}
         <div class="input-group mb-3">
             <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
@@ -86,20 +95,20 @@
 
 @section('auth_footer')
     {{-- Password reset link --}}
-    @if($passResetUrl)
+    {{--  @if($passResetUrl)
         <p class="my-0">
             <a href="{{ $passResetUrl }}">
                 {{ __('adminlte::adminlte.i_forgot_my_password') }}
             </a>
         </p>
-    @endif
+    @endif  --}}
 
     {{-- Register link --}}
-    @if($registerUrl)
+    {{--  @if($registerUrl)
         <p class="my-0">
             <a href="{{ $registerUrl }}">
                 {{ __('adminlte::adminlte.register_a_new_membership') }}
             </a>
         </p>
-    @endif
+    @endif  --}}
 @stop

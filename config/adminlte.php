@@ -65,7 +65,7 @@ return [
     */
 
     'logo' => '<b>Patukan Water</b> Works',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo_img' => '/images/logo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -174,10 +174,22 @@ return [
 
     'classes_auth_card' => 'card-outline card-primary',
     'classes_auth_header' => 'bg-gradient-primary',
-    'classes_auth_body' => '',
+    'classes_auth_body' => 'login-background',
     'classes_auth_footer' => 'text-center',
     'classes_auth_icon' => 'fa-lg text-info',
     'classes_auth_btn' => 'btn-flat btn-primary btn-md rounded-pill shadow-sm',
+    'plugins' => [
+        'CustomCss' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => 'css/custom.css',
+                ],
+            ],
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

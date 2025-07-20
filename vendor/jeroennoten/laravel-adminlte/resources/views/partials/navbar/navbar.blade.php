@@ -4,24 +4,22 @@
     {{ config('adminlte.classes_topnav_nav', 'navbar-expand') }}
     {{ config('adminlte.classes_topnav', 'navbar-white navbar-light') }}">
 
-    {{-- Navbar left hamburger icon --}}
+    {{-- Navbar left links --}}
     <ul class="navbar-nav">
-        <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-                <i class="fas fa-bars"></i>
-            </a>
-        </li>
+        {{-- Left sidebar toggler link --}}
+        @include('adminlte::partials.navbar.menu-item-left-sidebar-toggler')
+
+        {{-- Configured left links --}}
+        @each('adminlte::partials.navbar.menu-item', $adminlte->menu('navbar-left'), 'item')
+
+        {{-- Custom left links --}}
+        @yield('content_top_nav_left')
     </ul>
 
     {{-- Navbar right links --}}
     <ul class="navbar-nav ml-auto">
         {{-- Custom right links --}}
         @yield('content_top_nav_right')
-
-        {{-- Example static item (you had "enan") --}}
-        <li class="nav-item">
-            <span class="nav-link">enan</span>
-        </li>
 
         {{-- Configured right links --}}
         @each('adminlte::partials.navbar.menu-item', $adminlte->menu('navbar-right'), 'item')
@@ -42,34 +40,3 @@
     </ul>
 
 </nav>
-
-@push('js')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggle = document.getElementById('darkModeSwitch');
-        const icon = document.getElementById('darkModeIcon');
-        const body = document.body;
-
-        // Init state from localStorage
-        const darkMode = localStorage.getItem('darkMode');
-        if (darkMode === 'enabled') {
-            body.classList.add('dark-mode');
-            if (toggle) toggle.checked = true;
-            if (icon) icon.textContent = '☀️';
-        }
-
-        // Toggle dark mode + icon
-        toggle?.addEventListener('change', function () {
-            if (this.checked) {
-                body.classList.add('dark-mode');
-                localStorage.setItem('darkMode', 'enabled');
-                if (icon) icon.textContent = '☀️';
-            } else {
-                body.classList.remove('dark-mode');
-                localStorage.setItem('darkMode', 'disabled');
-                if (icon) icon.textContent = '🌙';
-            }
-        });
-    });
-</script>
-@endpush

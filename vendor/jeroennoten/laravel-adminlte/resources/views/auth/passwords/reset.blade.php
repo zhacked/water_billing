@@ -10,16 +10,6 @@
     }
 @endphp
 
-@section('adminlte_css_pre')
-    <style>
-        body.login-page {
-            background: url('/images/login-bg.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-    </style>
-@stop
-
-
 @section('auth_header', __('adminlte::adminlte.password_reset_message'))
 
 @section('auth_body')

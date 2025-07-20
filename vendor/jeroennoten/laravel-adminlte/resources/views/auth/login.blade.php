@@ -2,18 +2,6 @@
 
 @section('adminlte_css_pre')
     <link rel="stylesheet" href="{{ asset('vendor/icheck-bootstrap/icheck-bootstrap.min.css') }}">
-    <style>
-        body.login-page {
-            background: url('/images/login-bg.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-        .bg-semi-transparent {
-            background-color: rgba(255, 255, 255, 0.5) !important; /* white with 80% opacity */
-            border-radius: 100px;
-            {{--  padding: 20px;  --}}
-            backdrop-filter: blur(10px); /* optional: adds nice frosted glass effect */
-        }
-    </style>
 @stop
 
 @php
@@ -35,7 +23,7 @@
 @section('auth_header', __('adminlte::adminlte.login_message'))
 
 @section('auth_body')
-    <form action="{{ $loginUrl }}" method="post" class="bg-semi-transparent ">
+    <form action="{{ $loginUrl }}" method="post">
         @csrf
 
         {{-- Email field --}}
@@ -107,11 +95,11 @@
     @endif
 
     {{-- Register link --}}
-    {{--  @if($registerUrl)
+    @if($registerUrl)
         <p class="my-0">
             <a href="{{ $registerUrl }}">
                 {{ __('adminlte::adminlte.register_a_new_membership') }}
             </a>
         </p>
-    @endif  --}}
+    @endif
 @stop

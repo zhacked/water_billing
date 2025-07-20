@@ -25,6 +25,7 @@ class BillsController extends Controller
             $customerQuery->where('group_id', $groupId);
         }
 
+
         // Search by name or meter number
         if (!empty($search)) {
             $customerQuery->where(function ($query) use ($search) {
@@ -54,6 +55,7 @@ class BillsController extends Controller
     {
         $customer = User::findOrFail($id);
 
+
         $bill = Bills::with(['user', 'meterReading'])
             ->where('user_id', $id)
             ->latest()
@@ -69,6 +71,7 @@ class BillsController extends Controller
             }
             return $b;
         });
+
 
         $totalUnpaid = Bills::where('user_id', $id)
             ->where('is_paid', false)

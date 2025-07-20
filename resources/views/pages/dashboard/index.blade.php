@@ -169,8 +169,45 @@
         </div>
     </div>
 
-
-    
+    <div class="card mt-4 col-md-12">
+        <div class="card-header bg-danger text-white">
+            <h3 class="card-title">Clients for Reconnection</h3>
+        </div>
+        <div class="card-body p-0">
+            @if($reconnectionClients->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped mb-0">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Client Name</th>
+                                <th>Address</th>
+                                <th>Contact Number</th>
+                                <th>Meter Number</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($reconnectionClients as $index => $client)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $client->name }}</td>
+                                    <td>{{ $client->address }}</td>
+                                    <td>{{ $client->contact_number }}</td>
+                                    <td>{{ $client->meter_number }}</td>
+                                    <td> <h4>₱ {{ number_format($client->total_balance, 2) }}</h4></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="p-3 text-center">
+                    <strong>No clients currently need reconnection 🎉</strong>
+                </div>
+            @endif
+        </div>
+    </div>
     {{-- Monthly Income Report Bar Graph --}}
     <div class="card mt-4 col-md-12">
         <div class="card-header">

@@ -32,6 +32,7 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
 
+
         $bill = Bills::findOrFail($request->id);
         $bill->is_paid = true;
         $bill->update();
@@ -39,7 +40,7 @@ class PaymentController extends Controller
         Payment::create([
             'user_id' => $request->user_id,
             'bill_id' => $request->id,
-            'amount_paid' => $request->amount,
+            'amount_paid' => $request->reconnection_fee,
             'payment_type' => 'Cash',
             'reference_number' => $request->reference_number,
             'payment_date' => \Carbon\Carbon::now(),

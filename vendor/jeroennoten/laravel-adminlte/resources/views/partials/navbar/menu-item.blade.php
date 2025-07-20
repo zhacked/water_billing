@@ -3,16 +3,15 @@
 @if ($navbarItemHelper->isSearch($item))
 
     {{-- Search form --}}
-    {{--  @include('adminlte::partials.navbar.menu-item-search-form')  --}}
-        <li class="nav-item d-flex align-items-center px-2 left">
-            <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input" id="darkModeSwitch">
-                <label class="custom-control-label" for="darkModeSwitch">
-                    <span id="darkModeIcon">🌙</span>
-                </label>
-            </div>
-        </li>
-
+    @include('adminlte::partials.navbar.menu-item-search-form')
+    <li class="nav-item d-flex align-items-center px-2 left">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="darkModeSwitch">
+                    <label class="custom-control-label" for="darkModeSwitch">
+                        <span id="darkModeIcon">🌙</span>
+                    </label>
+                </div>
+    </li>
 @elseif ($navbarItemHelper->isNotification($item))
 
     {{-- Notification link --}}

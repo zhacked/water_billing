@@ -46,35 +46,48 @@ class HomeController extends Controller
         $totalClient = User::clients()->count();
         $totalStaff = User::staffs()->count();
 
-        // TRANSACTIONS QUERY
-        $transactionQuery = Bills::with(['user.group', 'meterReading'])->where('is_paid', 0);
+        // Transactions query - only unpaid bills
+        $transactionQuery = Bills::with(['user.group', 'meterReading'])
+            ->where('is_paid', 0);
 
+        //  Apply search filter if present
         if (!empty($search)) {
-            $transactionQuery->where(function ($query) use ($search) {
-                $query->whereHas('user', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhereHas('group', function ($g) use ($search) {
-                            $g->where('name', 'like', "%{$search}%");
-                        });
-                });
+            $transactionQuery->whereHas('user', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('group', function ($groupQuery) use ($search) {
+                        $groupQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
-        // No pagination yet, we group first
+        // Get all (unpaid) transactions
         $allTransactions = $transactionQuery->latest()->get();
 
-        // Group by group name
+        // Group by user group name
         $grouped = $allTransactions->groupBy(function ($bill) {
             return optional($bill->user->group)->name ?? 'No Group';
         });
 
-        // Transform grouped data with totals
+        // Map grouped transactions with total due
         $groupedTransactions = $grouped->map(function ($groupBills) {
             return [
-                'transactions' => $groupBills,
+                'transactions' => $groupBills->map(function ($bill) {
+                    // include user status to use in filter/view
+                    $bill->user_status = optional($bill->user)->status ?? null;
+                    return $bill;
+                }),
                 'total_due' => $groupBills->sum('amount_due'),
             ];
         });
+        $reconnectionClients = User::clients()
+            ->where('status', 'for reconnection')
+            ->select('users.*')
+            ->addSelect([
+                'total_balance' => DB::table('bills')
+                    ->selectRaw('COALESCE(SUM(amount_due + penalty), 0)')
+                    ->whereColumn('user_id', 'users.id')
+            ])
+            ->paginate(10);
 
         return view('pages.dashboard.index', compact(
             'monthlyIncomeReport',
@@ -86,7 +99,8 @@ class HomeController extends Controller
             'totalClient',
             'totalStaff',
             'search',
-            'groupedTransactions'
+            'groupedTransactions',
+            'reconnectionClients'
         ));
     }
 

@@ -245,9 +245,14 @@
             const amount = button.dataset.amount;
             const user_id = button.dataset.user;
             const id = button.dataset.id;
-
+            const path = window.location.pathname;
             // Fix URL here to include the actual id
-            const url = `/reconnect/${id}`;
+            let url = '';
+            if (path.startsWith('/client/transaction/')) {
+                url = '/payment';
+            }else{
+                url = `/reconnect/${id}`;
+            }
 
             Swal.fire({
                 title: `Payment for ${name}`,

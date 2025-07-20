@@ -2,14 +2,7 @@
 
 @section('adminlte_css')
     @yield('css')
-      <style>
-        body.login-page {
-            background: url('/images/login-bg.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-    </style>
 @stop
-
 
 @section('classes_body', 'lockscreen')
 

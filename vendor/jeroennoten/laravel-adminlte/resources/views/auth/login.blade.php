@@ -23,8 +23,9 @@
 @push('css')
 <style>
     body.login-page {
-        background: url('/images/bg_login.jpg') no-repeat center center fixed;
-        background-size: cover;
+        background-color: #e5dfda;
+        {{--  background: url('/images/bg_login.jpg') no-repeat center center fixed;
+        background-size: cover;  --}}
     }
 </style>
 @endpush

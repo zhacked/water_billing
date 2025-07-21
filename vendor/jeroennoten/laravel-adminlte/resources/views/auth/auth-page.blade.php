@@ -82,7 +82,12 @@
             @endif
 
         </div>
+        
+    </div>
 
+    <div style="text-align: right; padding-left: 300px;">
+        <img src="{{ asset(config('adminlte.footer_image')) }}"
+            alt="{{ config('adminlte.footer_image') }}" width="300" height="130">
     </div>
 @stop
 

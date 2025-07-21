@@ -65,7 +65,7 @@ return [
     */
 
     'logo' => '<b>Patukan Water</b> Works',
-    'logo_img' => '/images/logo.png',
+    'logo_img' => '/images/logoPantukan.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -114,7 +114,7 @@ return [
         'enabled' => true,
         'mode' => 'fullscreen',
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+            'path' => '/images/logoPantukan.png',
             'alt' => 'AdminLTE Preloader Image',
             'effect' => 'animation__shake',
             'width' => 60,

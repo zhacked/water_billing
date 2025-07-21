@@ -23,8 +23,7 @@
 @push('css')
 <style>
     body.login-page {
-
-        background: url('/images/pantukan.jpg') no-repeat center center fixed;
+        background: url('/images/bg_login.jpg') no-repeat center center fixed;
         background-size: cover;
     }
 </style>

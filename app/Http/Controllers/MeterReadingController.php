@@ -92,7 +92,6 @@ class MeterReadingController extends Controller
                 'is_paid' => false
             ]);
 
-            $user = User::find($validated['user_id'])->first();
             $user = User::where('id', $validated['user_id'])->first();
             $message = "Hi {$user->name}, your first water meter reading has been recorded.\n" .
                 "First Reading: " .  $validated['current_reading'] . " m³" .  "\n" .

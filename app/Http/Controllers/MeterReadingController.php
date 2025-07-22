@@ -226,10 +226,12 @@ class MeterReadingController extends Controller
     {
         $meter = MeterReading::where('user_id', $id)->latest()->first();
         $customer = User::with('category')->clients()->where('id', $id)->first();
-        $totalAmountDue = Bills::where('user_id', $id)->sum('amount_due');
-        $totalPenalties = Bills::where('user_id', $id)->sum('penalty');
+        $totals = Bills::where('user_id', $id)
+                        ->where('is_paid', 0)
+                        ->selectRaw('SUM(amount_due) as total_due, SUM(penalty) as total_penalty')
+                        ->first();
 
-        $billAmount = $totalAmountDue + $totalPenalties;
+        $billAmount = $totals->total_due + $totals->total_penalty;
         return view("pages.billing.form", compact('customer', 'meter', 'billAmount'));
     }
 }

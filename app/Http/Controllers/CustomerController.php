@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Bills;
 use App\Models\group;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class CustomerController extends Controller
             ->latest()
             ->paginate(10)
             ->appends(['search' => $search]); // Keeps query string in pagination
-
+    
         return view("pages.customer.index", compact("customers", "search"));
     }
 

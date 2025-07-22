@@ -92,4 +92,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
     }
+
+    public function getTotalUnpaidBillAttribute()
+    {
+        return $this->bills->sum(fn ($bill) => $bill->amount_due + $bill->penalty);
+    }
 }

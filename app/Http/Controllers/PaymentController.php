@@ -32,7 +32,6 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
 
-
         $bill = Bills::findOrFail($request->id);
         $bill->is_paid = true;
         $bill->update();

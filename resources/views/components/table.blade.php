@@ -54,45 +54,54 @@
 
                 @forelse ($displayFields as $field)
                     <td>
-                        @if($field === 'status')
+                @if($field === 'status')
+                    @php
+                        $status = $row->status;
+                        $badgeClass = match($status) {
+                            'active' => 'bg-success',
+                            'for disconnection' => 'bg-warning text-white',
+                            'inactive' => 'bg-secondary',
+                            default => 'bg-secondary',
+                        };
+                    @endphp
+                    <div class="d-flex flex-column">
+                        <span class="badge {{ $badgeClass }}">
+                            {{ ucfirst($status) }}
+                        </span>
+
+                        @if($status != 'active')
                             @php
-                                $status = $row->status;
-                             
-                                $badgeClass = match($status) {
-                                    'active' => 'bg-success',
-                                    'for disconnection' => 'bg-warning text-white',
-                                    'inactive' => 'bg-secondary',
-                                    default => 'bg-secondary',
-                                };
+                                $isTransactionPage = request()->is('client/transaction/*');
+                                $amount = $isTransactionPage ? $row->amount_due : $row->total_unpaid_bill;
                             @endphp
-                            <div class="d-flex flex-column">
-                                <span class="badge {{ $badgeClass }}">
-                                    {{ ucfirst($status) }}
-                                </span>
 
-                                @if($status != 'active')
-                                    <button 
-                                        class="btn btn-sm btn-outline-success mt-1 settle-button"
-                                        data-name="{{ $row->name }}"
-                                        data-amount="{{ $row->amount_due }}"
-                                        data-user="{{ $row->account_id }}"
-                                        data-id="{{ $row->id }}"
-                                        data-url="{{ $paymentRoute }}"
-                                    >
-                                    Reconnect 🧩
-                                    </button>
-                                @endif
-                            </div>
-
-                        @elseif($field === 'is_paid')
-                            <span class="badge inline-block px-3 py-1 rounded-full text-white text-sm font-semibold 
-                                {{ $row->is_paid ? 'bg-success' : 'bg-danger' }}">
-                                {{ $row->is_paid ? 'Paid' : 'Not Paid' }}
-                            </span>
-                        @else
-                            {{ data_get($row, key: $field) }}
+                            <button 
+                                class="btn btn-sm btn-outline-success mt-1 settle-button"
+                                data-name="{{ $row->name }}"
+                                data-amount="{{ $amount }}"
+                                data-user="{{ $row->account_id }}"
+                                data-id="{{ $row->id }}"
+                                data-url="{{ $paymentRoute }}"
+                            >
+                                Reconnect 🧩
+                            </button>
                         @endif
-                    </td>
+                    </div>
+
+                @elseif($field === 'is_paid')
+                    <span class="badge inline-block px-3 py-1 rounded-full text-white text-sm font-semibold 
+                        {{ $row->is_paid ? 'bg-success' : 'bg-danger' }}">
+                        {{ $row->is_paid ? 'Paid' : 'Not Paid' }}
+                    </span>
+
+                @elseif($field === 'total_unpaid_bill')
+                    ₱{{ number_format(data_get($row, $field), 2) }}
+
+                @else
+                    {{ data_get($row, $field) }}
+                @endif
+            </td>
+                    
                 @empty
                     <td>
                         <p>No Record Found</p>
@@ -250,78 +259,81 @@
 
         function showPaymentModal(button) {
             const name = button.dataset.name;
-            const amount = button.dataset.amount;
-            const user_id = button.dataset.user;
-            const id = button.dataset.id;
+            const amount = parseFloat(button.dataset.amount);
+            const userId = button.dataset.user;
+            const billId = button.dataset.id;
             const path = window.location.pathname;
-            // Fix URL here to include the actual id
-            let url = '';
-            if (path.startsWith('/client/transaction/')) {
-                url = '/payment';
-            }else{
-                url = `/reconnect/${id}`;
-            }
+
+            const isClientTransaction = path.startsWith('/client/transaction/');
+            const url = isClientTransaction ? '/payment' : `/reconnect/${billId}`;
+
+            const referenceInput = `<input id="refNumber" class="swal2-input mb-2" placeholder="Enter Reference Number">`;
+            const amountText = `<div id="amountText" class="swal2-html-container" style="font-weight: bold;">
+                Amount to Settle: ₱${amount.toFixed(2)}
+            </div>`;
+
+            const reconnectionInput = isClientTransaction ? '' : 
+                `<input id="reconnectionFee" class="swal2-input mb-2" placeholder="Enter Reconnection Fee" type="number" min="0">`;
 
             Swal.fire({
                 title: `Payment for ${name}`,
-                html: `
-                    <input id="refNumber" class="swal2-input mb-2" placeholder="Enter Reference Number">
-                    <input id="reconnectionFee" class="swal2-input" type="number" step="0.01" min="0" placeholder="Enter Reconnection Fee (PHP)">
-                `,
+                html: referenceInput + reconnectionInput + amountText,
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonText: 'Proceed to Pay',
                 preConfirm: () => {
-                    const refNumber = document.getElementById('refNumber').value.trim();
-                    const reconnectionFee = parseFloat(document.getElementById('reconnectionFee').value.trim());
-
+                    const refNumber = document.getElementById('refNumber')?.value.trim();
                     if (!refNumber) {
                         Swal.showValidationMessage('Reference number is required');
                         return false;
                     }
 
-                    if (isNaN(reconnectionFee) || reconnectionFee < 0) {
-                        Swal.showValidationMessage('Reconnection fee must be a valid non-negative number');
-                        return false;
+                    let reconnectionFee = amount;
+                    if (!isClientTransaction) {
+                        const feeInput = document.getElementById('reconnectionFee')?.value.trim();
+                        reconnectionFee = parseFloat(feeInput);
+                        if (isNaN(reconnectionFee) || reconnectionFee < 0) {
+                            Swal.showValidationMessage('Reconnection fee must be a valid non-negative number');
+                            return false;
+                        }
                     }
 
                     return { refNumber, reconnectionFee };
                 }
             }).then(result => {
-                if (result.isConfirmed) {
-                    const { refNumber, reconnectionFee } = result.value;
+                if (!result.isConfirmed) return;
 
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            name: name,
-                            user_id: user_id,
-                            id: id,
-                            reference_number: refNumber,
-                            reconnection_fee: reconnectionFee
-                        })
+                const { refNumber, reconnectionFee } = result.value;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        name,
+                        user_id: userId,
+                        id: billId,
+                        reference_number: refNumber,
+                        reconnection_fee: reconnectionFee
                     })
-                    .then(response => {
-                        if (response.ok) {
-                            Swal.fire('Success', 'Payment has been processed!', 'success').then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            return response.json().then(data => {
-                                throw new Error(data.message || 'Unknown error');
-                            });
-                        }
-                    })
-                    .catch(err => {
-                        Swal.fire('Error', err.message || 'Something went wrong.', 'error');
-                    });
-                }
+                })
+                .then(async response => {
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.message || 'Unknown error occurred');
+                    }
+                    return response.json();
+                })
+                .then(() => {
+                    Swal.fire('Success', 'Payment has been processed!', 'success')
+                        .then(() => location.reload());
+                })
+                .catch(err => {
+                    Swal.fire('Error', err.message || 'Something went wrong.', 'error');
+                });
             });
         }
-
     </script>
 

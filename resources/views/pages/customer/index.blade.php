@@ -9,15 +9,16 @@
         <x-layouts.add-button route="customer.create" label="Add User" />
      
         <x-table 
-            :headers="['Client ID','Name', 'Email', 'Contact Number','Meter Number', 'Address', 'Status']" 
+            :headers="['Client ID','Name', 'Email', 'Contact Number','Meter Number', 'Address', 'Status', 'To Collect']" 
             :rows="$customers"
-            :displayFields="['account_id','name', 'email', 'contact_number','meter_number','address', 'status']"
+            :displayFields="['account_id','name', 'email', 'contact_number','meter_number','address', 'status', 'total_unpaid_bill']"
             showIndex="true"
             hideId="true"
             editRoute="customer.edit"
             deleteRoute="customer.destroy"
             editStatus="customer.toggleStatus"
         />
+
   
 
     </div>

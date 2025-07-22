@@ -42,6 +42,7 @@ Route::group(['middleware' => ['auth', 'role:admin,plumber,cashier']], function 
     Route::resource('meter', MeterReadingController::class);
     Route::resource('payment', PaymentController::class);
     Route::resource('expenses', ExpensesController::class);
+    Route::resource('category', CategoryController::class);
 });
 
 Route::group(['middleware' => ['auth', 'role:admin']], function () {
@@ -60,7 +61,5 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
     Route::resource('staff', StaffController::class);
 
     Route::resource('groups', GroupController::class);
-    Route::resource('category', CategoryController::class);
-
     Route::post('/reconnect/{id}', [PaymentController::class, 'Reconnect'])->name('payment.reconnect');
 });

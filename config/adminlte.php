@@ -360,22 +360,16 @@ return [
             ],
         ],
         [
-            'text' => 'Reports',
+            'text' => 'Billing',
+            'url' => 'billing',
+            'icon' => '	fas fa-money-bill',
+            'can' => 'staff section',
+        ],
+        [
+            'text' => 'Record (Client)',
+            'url' => 'customer/record',
             'icon' => 'fas fa-chart-pie',
-            'submenu' => [
-                [
-                    'text' => 'Billing',
-                    'url' => 'billing',
-                    'icon' => '	fas fa-money-bill',
-                    'can' => 'staff section',
-                ],
-                [
-                    'text' => 'Record (Client)',
-                    'url' => 'customer/record',
-                    'icon' => 'fas fa-chart-pie',
-                    'can' => 'client section',
-                ],
-            ],
+            'can' => 'client section',
         ],
         [
             'text' => 'Others',

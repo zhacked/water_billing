@@ -16,7 +16,7 @@
             <p><strong>Consumption:</strong></p>
             <ul>
                 @forelse ($clients->bills as $bill)
-                    <li>{{ $bill->consumption}} kW/h on ({{ \Carbon\Carbon::parse($bill->billing_date)->format('M d, Y') }}) = ₱{{ number_format($bill->amount_due, 2)}}</li>
+                    <li>{{ $bill->consumption}} cm³ on ({{ \Carbon\Carbon::parse($bill->billing_date)->format('M d, Y') }}) = ₱{{ number_format($bill->amount_due, 2)}}</li>
                 @empty
                     <h5>All payment has been settled! Thank you.</h5>
                 @endforelse

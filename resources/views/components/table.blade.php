@@ -198,14 +198,18 @@
         @endforeach
     </tbody>
 </table>
-<div class="card-footer clearfix">
-    <div class="float-left">
-        Showing {{ $rows->firstItem() }} to {{ $rows->lastItem() }} of {{ $rows->total() }} entries
+
+
+@if ($rows instanceof \Illuminate\Pagination\LengthAwarePaginator || $rows instanceof \Illuminate\Pagination\Paginator)
+    <div class="card-footer clearfix">
+        <div class="float-left">
+            Showing {{ $rows->firstItem() }} to {{ $rows->lastItem() }} of {{ $rows->total() }} entries
+        </div>
+        <div class="float-right">
+            {{ $rows->appends(request()->query())->links('pagination::bootstrap-4') }}
+        </div>
     </div>
-    <div class="float-right">
-        {{ $rows->appends(request()->query())->links('pagination::bootstrap-4') }}
-    </div>
-</div>
+@endif
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>

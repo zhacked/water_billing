@@ -15,7 +15,7 @@ class RoleMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$role): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!Auth::check()) {
             abort(401, 'Not logged in');
@@ -23,14 +23,8 @@ class RoleMiddleware
 
         $user = $request->user();
 
-        logger()->debug('RoleMiddleware Check', [
-            'user_id' => $user->id,
-            'user_role' => $user->role,
-            'allowed_roles' => $role,
-        ]);
-
-
-        if (!in_array($user->role, $role)) {
+        // ✅ Spatie-based role check
+        if (!$user->hasAnyRole($roles)) {
             throw new AuthorizationException('You do not have permission to access this page.');
         }
 

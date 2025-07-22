@@ -2,11 +2,9 @@
 
 namespace App\Providers;
 
-
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,23 +14,46 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // Example:
-        // \App\Models\Post::class => \App\Policies\PostPolicy::class,
+        // \App\Models\Model::class => \App\Policies\ModelPolicy::class,
     ];
 
     /**
-     * Register any authentication / authorization services.
+     * Register any authentication/authorization services.
      */
     public function boot(): void
     {
         $this->registerPolicies();
-        Gate::define('admin-only', function ($user) {
-            Log::info('Checking admin-only gate for user: ' . $user->role);
-            return $user->role === 'admin';
-        });
-        Gate::define('admin-only', fn($user) => $user->role === 'admin');
-        Gate::define('client-only', fn($user) => $user->role === 'client');
-        Gate::define('staff-only', fn($user) => $user->role === 'staff');
-        Gate::define('view-dashboard', fn($user) => in_array($user->role, ['admin', 'staff', 'client']));
+
+    Gate::before(function ($user, $ability) {
+        
+        // Admin has access to everything EXCEPT client-only areas
+        if ($user->hasRole('admin') && $ability !== 'client-only') {
+            return true;
+        }
+
+        return null; // allow other Gate::define to run
+    });
+
+ 
+    // Example: shared access for plumber & cashier
+    Gate::define('access-shared-page', fn($user) =>
+        $user->hasAnyRole(['plumber', 'cashier'])
+    );
+
+    Gate::define('client-only', fn($user) =>
+        $user->hasRole('client')
+    );
+
+    Gate::define('plumbing-only', fn($user) =>
+        $user->hasRole('plumber')
+    );
+
+    Gate::define('cashier-only', fn($user) =>
+        $user->hasRole('cashier')
+    );
+
+    Gate::define('view-dashboard', fn($user) =>
+        $user->hasAnyRole(['admin', 'client', 'plumber', 'cashier'])
+    );
     }
 }

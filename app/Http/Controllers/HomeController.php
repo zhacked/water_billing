@@ -65,7 +65,7 @@ class HomeController extends Controller
 
         // Group by user group name
         $grouped = $allTransactions->groupBy(function ($bill) {
-            return optional($bill->user->group)->name ?? 'No Group';
+            return optional($bill->user?->group)->name ?? 'No Group';
         });
 
         // Map grouped transactions with total due
@@ -273,7 +273,7 @@ class HomeController extends Controller
 
         // Group by group name
         $grouped = $allTransactions->groupBy(function ($bill) {
-            return optional($bill->user->group)->name ?? 'No Group';
+            return optional($bill?->user?->group)->name ?? 'No Group';
         });
         // Load groups for dropdown
         $groupedTransactions = $grouped->map(function ($groupBills) {

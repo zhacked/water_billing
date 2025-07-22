@@ -6,15 +6,15 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        // Optional: clear users and roles in local/dev
+        // User::truncate();
+
         $users = [
             [
                 'name' => 'Admin User',
@@ -25,7 +25,6 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
-                'remember_token' => Str::random(10),
             ],
             [
                 'account_id' => 'A18599963662',
@@ -40,7 +39,6 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'password' => Hash::make('password123'),
                 'role' => 'client',
-                'remember_token' => Str::random(10),
             ],
             [
                 'name' => 'Plumber',
@@ -49,35 +47,37 @@ class UserSeeder extends Seeder
                 'address' => '789 Plumber Ave',
                 'contact_number' => '1122334455',
                 'status' => 'active',
-                'email_verified_at' => now(),
                 'group_id' => 1,
+                'email_verified_at' => now(),
                 'password' => Hash::make('password123'),
                 'role' => 'plumber',
-                'remember_token' => Str::random(10),
             ],
             [
                 'name' => 'Cashier',
                 'category_id' => 1,
                 'email' => 'cashier@example.com',
-                'address' => '789 cashier Ave',
+                'address' => '789 Cashier Ave',
                 'contact_number' => '1122334455',
                 'status' => 'active',
-                'email_verified_at' => now(),
                 'group_id' => 1,
+                'email_verified_at' => now(),
                 'password' => Hash::make('password123'),
                 'role' => 'cashier',
-                'remember_token' => Str::random(10),
             ],
         ];
 
-        foreach ($users as $userData) {
-            $role = $userData['role'];
-            $user = User::firstOrCreate(
-                ['email' => $userData['email']],
-                $userData
-            );
+        foreach ($users as $data) {
+            $role = $data['role'];
 
-            $user->assignRole($role);
+            $user = User::updateOrCreate(['email' => $data['email']], $data);
+
+            // Double check the role exists
+            $roleModel = Role::firstOrCreate(['name' => $role]);
+
+            // Use syncRoles to avoid duplicates
+            $user->syncRoles([$roleModel]);
         }
+
+        $this->command->info('✅ Users created and correct roles assigned.');
     }
 }

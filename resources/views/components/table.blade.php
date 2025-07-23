@@ -269,19 +269,24 @@
             const path = window.location.pathname;
 
             const isClientTransaction = path.startsWith('/client/transaction/');
+            const isCustomerPath = path.startsWith('/customer');
             const url = isClientTransaction ? '/payment' : `/reconnect/${billId}`;
 
-            const referenceInput = `<input id="refNumber" class="swal2-input mb-2" placeholder="Enter Reference Number">`;
-            const amountText = `<div id="amountText" class="swal2-html-container" style="font-weight: bold;">
-                Amount to Settle: ₱${amount.toFixed(2)}
-            </div>`;
+            const fixedReconnectionFee = isCustomerPath ? 1500 : 0;
+            const totalAmount = amount + fixedReconnectionFee;
 
-            const reconnectionInput = isClientTransaction ? '' : 
-                `<input id="reconnectionFee" class="swal2-input mb-2" placeholder="Enter Reconnection Fee" type="number" min="0">`;
+            const referenceInput = `<input id="refNumber" class="swal2-input mb-2" placeholder="Enter Reference Number">`;
+
+            const amountDetails = `
+                <div id="amountText" class="swal2-html-container" style="font-weight: bold; text-align: left;">
+                    ${!isClientTransaction ? `<p>Amount: ₱${amount.toFixed(2)}</p>` : ''}
+                    ${isCustomerPath ? `<p>Reconnection Fee: ₱${fixedReconnectionFee.toFixed(2)}</p>` : ''}
+                    <p>Total Amount to Settle: ₱${totalAmount.toFixed(2)}</p>
+                </div>`;
 
             Swal.fire({
                 title: `Payment for ${name}`,
-                html: referenceInput + reconnectionInput + amountText,
+                html: referenceInput + amountDetails,
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonText: 'Proceed to Pay',
@@ -292,15 +297,7 @@
                         return false;
                     }
 
-                    let reconnectionFee = amount;
-                    if (!isClientTransaction) {
-                        const feeInput = document.getElementById('reconnectionFee')?.value.trim();
-                        reconnectionFee = parseFloat(feeInput);
-                        if (isNaN(reconnectionFee) || reconnectionFee < 0) {
-                            Swal.showValidationMessage('Reconnection fee must be a valid non-negative number');
-                            return false;
-                        }
-                    }
+                    const reconnectionFee = isCustomerPath ? totalAmount : amount;
 
                     return { refNumber, reconnectionFee };
                 }
@@ -323,21 +320,18 @@
                         reconnection_fee: reconnectionFee
                     })
                 })
-                .then(async response => {
-                    if (!response.ok) {
-                        const data = await response.json();
-                        throw new Error(data.message || 'Unknown error occurred');
-                    }
-                    return response.json();
-                })
                 .then(() => {
+                    
                     Swal.fire('Success', 'Payment has been processed!', 'success')
                         .then(() => location.reload());
                 })
                 .catch(err => {
+                    console.log(err);
                     Swal.fire('Error', err.message || 'Something went wrong.', 'error');
                 });
             });
         }
+
+
     </script>
 

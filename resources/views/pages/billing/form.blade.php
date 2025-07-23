@@ -100,7 +100,7 @@
 @stop
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
     <script>
             function previewAndSubmit(event) {
                 event.preventDefault();
@@ -132,8 +132,17 @@
                     }
 
                     document.getElementById('meterForm').submit();
+                    const qrImageUrl = "{{ asset('images/pantukan_QR.png') }}";
+
+
                     const receiptHtml = `
                         <div style="font-family: 'Courier New', monospace; font-size: 12px; width: 240px; margin: 0 auto; padding: 10px; text-align: center;">
+                            <p style="margin: 10px 0;">Scan to login online</p>
+                                <img 
+                                    src="${qrImageUrl}" 
+                                    alt="QR Code" 
+                                    style="width: 120px; height: 120px; margin-top: 8px;"
+                                />
                             <h2 style="font-size: 14px; margin: 0;">WATER BILLING RECEIPT</h2>
                             <p style="margin: 4px 0;">Pantukan Waterworks</p>
                             <p style="margin: 4px 0;">${new Date().toLocaleString()}</p>
@@ -146,6 +155,7 @@
                                 <p>Current: ${current}</p>
                                 <p>Used: ${consumed} m³</p>
                                 <p>Rate/ML: ₱${price}</p>
+                                <p>Due Date: {{ now('Asia/Manila')->addDays(30)->format('M d, Y') }}</p>
                                 <hr style="border-top: 1px dashed #000;" />
                                 <p style="font-weight: bold;">TOTAL: ₱${total.toFixed(2)}</p>
                             </div>

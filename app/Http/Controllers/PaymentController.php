@@ -31,7 +31,7 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-
+    
         $bill = Bills::findOrFail($request->id);
         $bill->is_paid = true;
         $bill->update();
@@ -85,18 +85,32 @@ class PaymentController extends Controller
 
     public function Reconnect(Request $request, $id)
     {
-        $payment = ReconnectionHistory::create([
+        
+        Bills::where('user_id', $id)
+        ->where('is_paid', false) // optional: skip already-paid
+        ->update(['is_paid' => true]);
+
+        $Payment = Payment::create([
+            'user_id' => $id,
+            'bill_id' => $id,
+            'amount_paid' => $request->reconnection_fee,
+            'payment_type' => 'Cash',
+            'reference_number' => $request->reference_number,
+            'payment_date' => \Carbon\Carbon::now(),
+        ]);
+
+
+        if ($Payment) {
+            User::where('id', $id)->update([
+                "status" => "active",
+            ]);
+        }
+        $paymentHistory = ReconnectionHistory::create([
             'user_id' => $id,
             'amount_due' => $request->reconnection_fee,
             'payment_type' => 'cash',
             'reference_number' => $request->reference_number,
         ]);
-
-        if ($payment) {
-            User::where('id', $id)->update([
-                "status" => "active",
-            ]);
-        }
 
         return redirect()->back()->with('success', 'Reconnected successfully.');
     }

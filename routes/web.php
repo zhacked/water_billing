@@ -14,6 +14,7 @@ use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClientPageController;
 use App\Http\Controllers\MeterReadingController;
+use App\Http\Controllers\OtherPaymentController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -43,6 +44,8 @@ Route::group(['middleware' => ['auth', 'role:admin,plumber,cashier']], function 
     Route::resource('payment', PaymentController::class);
     Route::resource('expenses', ExpensesController::class);
     Route::resource('category', CategoryController::class);
+    Route::resource('client-other', OtherPaymentController::class);
+
 });
 
 Route::group(['middleware' => ['auth', 'role:admin']], function () {

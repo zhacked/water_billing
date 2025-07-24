@@ -59,14 +59,14 @@
                         $status = $row->status;
                         $badgeClass = match($status) {
                             'active' => 'bg-success',
-                            'for disconnection' => 'bg-warning text-white',
+                            'for reconnection' => 'bg-warning text-white',
                             'inactive' => 'bg-secondary',
                             default => 'bg-secondary',
                         };
                     @endphp
                     <div class="d-flex flex-column">
                         <span class="badge {{ $badgeClass }}">
-                            {{ ucfirst($status) }}
+                            {{ ucfirst($status == 'for reconnection' ? 'For Disconnection' : $status) }}
                         </span>
 
                         @if($status != 'active')
@@ -114,8 +114,7 @@
                             @php
                                 $latestBill = $row->bills->sortByDesc('billing_date')->first();
                             @endphp
-                       
-                           {{--  @if (optional( $latestBill?->billing_date )->isToday() && $latestBill != null  )  --}}
+                            {{--  @if (optional( $latestBill?->billing_date )->isToday() && $latestBill != null  )  --}}
                                 <x-layouts.action-icon-button 
                                     href="{{ route($readingRoute, $row->id) }}"
                                     title="Read meter"
@@ -171,7 +170,6 @@
                         @if($editRoute)
                             <x-layouts.action-icon-button 
                                 href="{{ route($editRoute, $row->id) }}"
-                                title="Edit"
                                 icon="pencil"
                                 color="primary"
                             />

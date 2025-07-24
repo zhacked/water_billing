@@ -372,9 +372,15 @@ return [
             'icon' => '	fas fa-unlock-alt',
             'submenu' => [
                 [
-                    'text' => 'Expenses',
+                    'text' => 'Expenses (Staff)',
                     'url' => 'expenses',
                     'icon' => 'far fa-credit-card',
+                    'can' => 'shared-access',
+                ],
+                [
+                    'text' => 'Expenses (client)',
+                    'url' => 'client-other',
+                    'icon' => 'fa fa-university',
                     'can' => 'shared-access',
                 ],
                 [

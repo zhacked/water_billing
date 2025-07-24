@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\User;
 use App\Models\Expenses;
 use Illuminate\Http\Request;
 
-class ExpensesController extends Controller
+
+class OtherPaymentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(request $request)
     {
         $search = $request->input('search');
 
-        $expenseQuery = Expenses::with('user')->where('type', 'staff');
+        $expenseQuery = Expenses::with('user')->where('type', 'customer');
 
         if (!empty($search)) {
             $expenseQuery->where(function ($query) use ($search) {
@@ -26,19 +28,18 @@ class ExpensesController extends Controller
             });
         }
 
-        $expenses = $expenseQuery->latest()->paginate(10)->appends(['search' => $search]);
+        $Other = $expenseQuery->latest()->paginate(10)->appends(['search' => $search]);
 
-        return view("pages.expenses.index", compact("expenses", "search"));
+        return view("pages.other_payment.index", compact("Other"));
     }
-
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $customers = User::staffs()->latest()->get();
-        return view("pages.expenses.form", compact("customers"));
+        $customers = User::clients()->latest()->get();
+        return view("pages.other_payment.form", compact("customers"));
     }
 
     /**
@@ -46,8 +47,7 @@ class ExpensesController extends Controller
      */
     public function store(Request $request)
     {
-
-        $validated = $request->validate([
+         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -55,30 +55,27 @@ class ExpensesController extends Controller
             'amount' => 'required|numeric',
         ]);
 
-        $validated['type'] = 'staff';
+        $validated['type'] = 'customer';
 
         Expenses::create($validated);
 
-        return redirect()->route('expenses.index')->with('success', 'Expenses created successfully.');
+        return redirect()->route("client-other.index")->with('success', 'Payment created successfully.');
     }
 
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Expenses $expenses, $id)
+    public function edit($id)
     {
-        $customers = User::findOrFail($id);
-        $expenses = Expenses::findOrFail($id);
-        return view('pages.expenses.form', compact('customers', 'expenses'));
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request,$id)
     {
-
         // Validate the incoming request
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -88,7 +85,7 @@ class ExpensesController extends Controller
             'amount' => 'required|numeric',
         ]);
 
-        $validated['type'] = 'staff';
+        $validated['type'] = 'customer';
 
         // Find the expense or fail
         $expense = Expenses::findOrFail($id);
@@ -97,7 +94,7 @@ class ExpensesController extends Controller
         $expense->update($validated);
 
         // Redirect back with success message
-        return redirect()->route('expenses.index')->with('success', 'Expense updated successfully.');
+        return redirect()->route('client-other.index')->with('success', 'Expense updated successfully.');
     }
 
     /**
@@ -107,6 +104,6 @@ class ExpensesController extends Controller
     {
         $expense = Expenses::findOrFail($id);
         $expense->delete();
-        return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully.');
+        return redirect()->route('client-other.index')->with('success', 'Payment deleted successfully.');
     }
 }

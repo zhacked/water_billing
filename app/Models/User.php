@@ -95,6 +95,8 @@ class User extends Authenticatable
 
     public function getTotalUnpaidBillAttribute()
     {
-        return $this->bills->sum(fn ($bill) => $bill->amount_due + $bill->penalty);
+        return $this->bills
+            ->where('is_paid', 0) // filter unpaid bills only
+            ->sum(fn($bill) => $bill->amount_due + $bill->penalty);
     }
 }

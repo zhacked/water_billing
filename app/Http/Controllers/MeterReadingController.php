@@ -221,17 +221,39 @@ class MeterReadingController extends Controller
         return redirect()->route('meter.index')->with('success', 'Meter reading deleted successfully.');
     }
 
-
     public function readingMeter($id)
     {
+        // Get the latest meter reading
         $meter = MeterReading::where('user_id', $id)->latest()->first();
-        $customer = User::with('category')->clients()->where('id', $id)->first();
+
+        // Get the customer details and category
+        $customer = User::with('category')->clients()->where('id', $id)->firstOrFail();
+
+        // Sum up unpaid bills and penalties
         $totals = Bills::where('user_id', $id)
                         ->where('is_paid', 0)
                         ->selectRaw('SUM(amount_due) as total_due, SUM(penalty) as total_penalty')
                         ->first();
 
-        $billAmount = $totals->total_due + $totals->total_penalty;
-        return view("pages.billing.form", compact('customer', 'meter', 'billAmount'));
+        // Total outstanding amount
+        $billAmount = ($totals->total_due ?? 0);
+         $billAmountwithPenalty = ($totals->total_due ?? 0) + ($totals->total_penalty ?? 0) ;
+        // Separate penalty for display
+        $penalty = $totals->total_penalty ?? 0;
+
+        // Determine previous reading:
+        // Prefer the last recorded meter reading, or fallback to 0
+        $previousReading = $meter ? $meter->current_reading : 0;
+
+        return view("pages.billing.form", compact(
+            'customer', 
+            'meter', 
+            'billAmount', 
+            'penalty', 
+            'previousReading',
+            'billAmountwithPenalty'
+        ));
     }
+
+
 }

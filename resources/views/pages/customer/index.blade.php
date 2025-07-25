@@ -16,6 +16,7 @@
             editRoute="customer.edit"
             deleteRoute="customer.destroy"
             editStatus="customer.toggleStatus"
+            changeMeter="customer.changeMeter"
         />
     </div>
 @stop

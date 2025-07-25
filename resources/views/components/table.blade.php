@@ -8,6 +8,7 @@
     'historyRoute' => null,
     'paymentRoute' => null,
     'editStatus' => null,
+    'changeMeter' => null,
     'showIndex' => false,
 ])
 
@@ -149,7 +150,7 @@
                     </td>
                 @endif
 
-                @if($editRoute || $deleteRoute || $editStatus)
+                @if($editRoute || $deleteRoute || $editStatus || $changeMeter)
                     <td>
                         @if($editStatus)
                             <x-layouts.action-icon-button 
@@ -166,6 +167,32 @@
                                 class="status-button"
                             />
                         @endif
+
+                        @php
+                            $unpaidBills = $row->bills->where('is_paid', false);
+                            $currentBill = $unpaidBills->sum(function($bill) {
+                                return $bill->amount_due + ($bill->penalty ?? 0);
+                            });
+
+                            $prevBill = $row->bills->sortByDesc('billing_date')->first();
+                        @endphp
+
+                        @if($changeMeter)
+                            <x-layouts.action-icon-button 
+                                href="javascript:void(0);"
+                                class="change-meter-button"
+                                icon="fa fa-reply-all"
+                                color="success"
+                                data-name="{{ $row->name }}"
+                                data-prev-amount="{{ $prevBill?->amount_due ?? 0 }}"
+                                data-prev-date="{{ $prevBill?->billing_date ? \Carbon\Carbon::parse($prevBill->billing_date)->format('M d, Y') : 'N/A' }}"
+                                data-current-bill="{{ number_format($currentBill, 2) }}"
+                                data-url="{{ route($changeMeter, $row->id) }}"
+                                data-method="PATCH"
+                            />
+                        @endif
+
+
 
                         @if($editRoute)
                             <x-layouts.action-icon-button 
@@ -332,4 +359,68 @@
 
 
     </script>
+    <script>
+        document.querySelectorAll('.change-meter-button').forEach(button => {
+            button.addEventListener('click', async function () {
+                const name = this.dataset.name || 'N/A';
+                const prevAmount = parseFloat(this.dataset.prevAmount || 0).toFixed(2);
+                const prevDate = this.dataset.prevDate || 'N/A';
+                const currentBill = this.dataset.currentBill || '0.00';
+                const url = this.dataset.url;
 
+                Swal.fire({
+                    title: `Change Meter for ${name}?`,
+                    html: `
+                        <div style="text-align: left; font-size: 1rem;">
+                            <h4>Your Meter Reading will be reset to Zero</h4>
+                            <p><strong>Last Bill:</strong></p>
+                            <ul style="margin-left: 1rem;">
+                                <li><strong>Amount:</strong> ₱${prevAmount}</li>
+                                <li><strong>Date:</strong> ${prevDate}</li>
+                            </ul>
+                            <hr>
+                            <p><strong>Total Unpaid Bills:</strong> <span style="color:red;">₱${currentBill}</span></p>
+                            <hr>
+                            <label for="newMeterNumber"><strong>New Meter Number:</strong></label>
+                            <input type="text" id="newMeterNumber" class="swal2-input" placeholder="Enter new meter number" required>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, change it',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true,
+                    preConfirm: () => {
+                        const meterNumber = document.getElementById('newMeterNumber').value.trim();
+                        if (!meterNumber) {
+                            Swal.showValidationMessage('⚠️ Please enter the new meter number.');
+                            return false;
+                        }
+                        return meterNumber;
+                    }
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        const meterNumber = result.value;
+
+                        fetch(url, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                meterNumber
+                            })
+                        })
+                        .then(data => {
+                            Swal.fire('✅ Success!', 'Meter number updated successfully.', 'success');
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            Swal.fire('❌ Error', 'Something went wrong while updating.', 'error');
+                        });
+                    }
+                });
+            });
+        });
+        </script>

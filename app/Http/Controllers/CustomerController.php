@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Bills;
 use App\Models\group;
 use App\Models\Category;
+use App\Models\MeterReading;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -135,6 +136,22 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'Status updated successfully!');
     }
 
+    public function changeMeter(Request $request, $id)
+    {
+        $meterReading = MeterReading::findOrFail($id);
+        $user = User::findOrFail($meterReading->user_id);
+
+        // Update user's meter number
+        $user->update([
+            'meter_number' => $request->meterNumber,
+        ]);
+
+        MeterReading::where('user_id', $user->id)
+        ->update(['is_meter_active' => false]);
+
+    
+        return redirect()->back();
+    }
     /**
      * Remove the specified resource from storage.
      */

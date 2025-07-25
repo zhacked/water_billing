@@ -41,7 +41,7 @@ class MeterReadingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request,  SemaphoreSmsService $smsService)
+    public function store(Request $request, SemaphoreSmsService $smsService)
     {
         try {
             $validated = $request->validate([
@@ -51,50 +51,37 @@ class MeterReadingController extends Controller
                 'amount' => 'required|numeric|min:0',
             ]);
 
-            // Check if this user already has meter readings
-            $latestReading = MeterReading::where('user_id', $validated['user_id'])
-                ->latest('reading_date')
-                ->first();
-
-            // If no previous reading exists, override 'previous_reading' to 0
-            if (!$latestReading) {
-                $validated['previous_reading'] = 0;
-            } else {
-                // Optional: Update validation to force correct sequence
-                if ($validated['previous_reading'] != $latestReading->current_reading) {
-                    return back()->withErrors([
-                        'previous_reading' => 'Previous reading must match the last recorded current reading (' . $latestReading->current_reading . ').'
-                    ])->withInput();
-                }
-            }
-
-            $consumption =  $validated['current_reading'] - $validated['previous_reading'];
+            $consumption = $validated['current_reading'] - $validated['previous_reading'];
             $amount_due = $consumption * $validated['amount'];
 
-            // Store the new meter reading
+            // Add reading date to validated
             $validated['reading_date'] = today();
+
+            // Create meter reading
             $meter = MeterReading::create($validated);
 
+            // Generate unique bill reference
             do {
                 $billRef = 'B1' . now()->timestamp . mt_rand(10, 99);
             } while (Bills::where('bill_ref', $billRef)->exists());
 
-
+            // Create bill
             $bill = Bills::create([
                 'user_id' => $validated['user_id'],
                 'meter_reading_id' => $meter->id,
-                'bill_ref' =>  $billRef,
-                'billing_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d'),
-                'consumption' =>  $consumption,
-                'amount_due' =>    $amount_due,
-                'due_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d'),
+                'bill_ref' => $billRef,
+                'billing_date' => now(),
+                'consumption' => $consumption,
+                'amount_due' => $amount_due,
+                'due_date' => now()->addDays(30)->format('Y-m-d'),
                 'penalty' => 0,
-                'is_paid' => false
+                'is_paid' => false,
             ]);
 
-            $user = User::where('id', $validated['user_id'])->first();
+            // Send SMS
+            $user = User::find($validated['user_id']);
             $message = "Hi {$user->name}, your first water meter reading has been recorded.\n" .
-                "First Reading: " .  $validated['current_reading'] . " m³" .  "\n" .
+                "First Reading: {$validated['current_reading']} m³\n" .
                 "Amount Due: PHP " . number_format($amount_due, 2) . "\n" .
                 "Due Date: " . \Carbon\Carbon::parse($bill->due_date)->format('M d, Y');
 
@@ -102,11 +89,14 @@ class MeterReadingController extends Controller
 
             return redirect()->route('billing.index')->with('success', 'Meter reading recorded successfully.');
         } catch (\Exception $e) {
-            Log::error('Exception caught: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+            Log::error('Meter reading store failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
             ]);
+
+            return redirect()->back()->with('error', 'Something went wrong. Please try again later.');
         }
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -137,14 +127,13 @@ class MeterReadingController extends Controller
             // Fetch unpaid bills
             $unpaidBills = Bills::where('user_id', $validated['user_id'])
                 ->where('is_paid', false)
-                ->orderByDesc('due_date')
+                ->orderByDesc(column: 'due_date')
                 ->get();
-
+            
             $unpaidCount = $unpaidBills->count();
-
             // Apply 10% penalty to the most recent unpaid bill
-            if ($unpaidCount > 0) {
-                $latestUnpaidBill = $unpaidBills->first();
+            if ($unpaidCount != 0) {
+                $latestUnpaidBill = $unpaidBills->last();
                 $latestUnpaidBill->penalty = $latestUnpaidBill->amount_due * 0.10;
                 $latestUnpaidBill->save();
             }
@@ -224,7 +213,7 @@ class MeterReadingController extends Controller
     public function readingMeter($id)
     {
         // Get the latest meter reading
-        $meter = MeterReading::where('user_id', $id)->latest()->first();
+        $meter = MeterReading::where('user_id', $id)->where('is_meter_active', true)->latest()->first();
 
         // Get the customer details and category
         $customer = User::with('category')->clients()->where('id', $id)->firstOrFail();

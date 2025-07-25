@@ -52,6 +52,7 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
 
     // -------------------------- Customer ----------------------//
     Route::patch('/customer/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customer.toggleStatus');
+    Route::patch('/customer/{id}/changeMeter', [CustomerController::class, 'changeMeter'])->name('customer.changeMeter');
 
     // -------------------------- Staff ----------------------//
     Route::patch('/staff/{id}/toggle-status', [StaffController::class, 'toggleStaffStatus'])->name('staff.toggleStaffStatus');
